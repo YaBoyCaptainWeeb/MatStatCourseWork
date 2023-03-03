@@ -5,8 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Математическая статистика" Height="700" Width="1200" Closing="AppExit">
     <Grid>
-        
+        <TabControl>
+            <TabItem x:Name="GeneralGrid">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="10" Width="10" Fill="Black" />
+                        <TextBlock Margin="3" FontSize="14">Источник данных</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" Loaded="Load" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
+                            <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
+                            <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
+                            <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
+                            <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
+                            <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
+                            <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
+                            <DataGridTextColumn Header="Аккумулятор(Вт*час)" Binding="{Binding _Battery}"/>
+                            <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem x:Name="Samples">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="10" Width="10" Fill="Black" />
+                        <TextBlock Margin="3" FontSize="14">Выборки</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

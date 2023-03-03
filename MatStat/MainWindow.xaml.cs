@@ -14,68 +14,102 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics;
-// using Microsoft.Office.Interop.Excel;
+using ExcelDataReader;
+using OfficeOpenXml;
+using System.ComponentModel;
 
 namespace MatStat
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        string[,] grid = new string[15, 8];
+        public class MyTable
+        {
+            public string _model { get; set; }
+            public double _price { get; set; }
+            public double _CPUClock { get; set; }
+            public double _RAMClock { get; set; }
+            public double _DriveDisk { get; set; }
+            public double _GPUClock { get; set; }
+            public double _Diagonal { get; set; }
+            public double _Battery { get; set; }
+            public double _Weight { get; set; }
+            
+            public MyTable(string model,double price, double CPUClock, double RABClock, double DriveDisk,double GPUClock, double Diagonal, double Battery, double Weight)
+            {
+                _model = model;
+                _price = price;
+                _CPUClock = CPUClock;
+                _RAMClock = RABClock;
+                _DriveDisk = DriveDisk;
+                _GPUClock = GPUClock;
+                _Diagonal = Diagonal;
+                _Battery = Battery;
+                _Weight = Weight;
+            }
+            public MyTable()
+            {
+
+            }
+        }
+        List<List<string>> grid = new List<List<string>>();
+        List<MyTable> itemsSource = new List<MyTable>();
         Microsoft.Office.Interop.Excel.Application Excel = new Microsoft.Office.Interop.Excel.Application();
+
         public MainWindow()
         {
             // EP+ excel
             // Excel Data Reader
             // Excel Data Reader.Dataset
+            
             InitializeComponent();
             try
-            { // Открываем таблицу из экселя и копируем ее в локальный массив
-                Microsoft.Office.Interop.Excel.Workbook workbook = Excel.Workbooks.Open(@"C:\Users\User\source\repos\MatStatCourseWork\MatStat\Матрица.xlsx", Type.Missing,true, Type.Missing,
-                    Type.Missing, Type.Missing,true, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-                Microsoft.Office.Interop.Excel.Sheets sheets = workbook.Worksheets;
-                Microsoft.Office.Interop.Excel.Worksheet worksheet = sheets.get_Item(1);
-                for (int i = 1; i != 15; i++)
-                {
-                    Microsoft.Office.Interop.Excel.Range range = worksheet.get_Range("A" + i.ToString(), "I" + i.ToString());
-                    for (int j = 1; j != range.Cells.Count; j++)
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                ExcelPackage excelPackage = new ExcelPackage(@".\Матрица.xlsx");
+                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0];
+               for (int i = 2; true; i++)
+               {
+                    if (excelWorksheet.Cells[i, 1].Value == null) break;
+                    List<string> row = new List<string>();
+                    for (int j = 1; true; j++)
                     {
-                        grid[i-1,j-1] = range.Cells[j].Value.ToString();
+                        if (excelWorksheet.Cells[i,j].Value == null) break;
+                        row.Add(excelWorksheet.Cells[i, j].Value.ToString());
                     }
-                }
-
-                string info = "";
-                for (int i = 0; i != 14; i++)
-                {
-                    for (int j = 0; j != 7; j++)
-                    {
-                        info += grid[i, j] + " ";  
-                    }
-                    info += '\n';
-                }
-                MessageBox.Show(info);
-
+                    grid.Add(row);
+               }
+               foreach(List<string> row in grid) // делаем копию в itemSource для загрузки данных в нужном формате для DataGrid
+               {
+                    itemsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
+                        Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
+               }
+            } 
+            catch (Exception)
+            {
+                MessageBox.Show("Таблица не найдена/не может быть открыта.");
                 Process[] List;
                 List = Process.GetProcessesByName("EXCEL");
                 foreach (Process process in List)
                 {
                     process.Kill();
                 }
-            }
-            catch(Exception)
-            {
-                MessageBox.Show("Таблица не была найдена или не может быть открыта");
-                Process[] List;
-                List = Process.GetProcessesByName("EXCEL");
-                foreach(Process process in List)
-                {
-                    process.Kill();
-                }
                 Application.Current.Shutdown();
+            }            
+        }
+
+        private void Load(object sender, RoutedEventArgs e)
+        {
+           dataGrid.ItemsSource = itemsSource;
+        }
+
+        private void AppExit(object sender, CancelEventArgs e)
+        {
+            Process[] List;
+            List = Process.GetProcessesByName("EXCEL");
+            foreach (Process process in List)
+            {
+                process.Kill();
             }
-            
         }
     }
 }
