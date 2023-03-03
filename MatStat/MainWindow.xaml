@@ -16,6 +16,8 @@
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
+                    <StackPanel>
+                        <Button Width="150" Height="25" HorizontalAlignment="Left">Сохранить изминения(доработать)</Button>
                     <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" Loaded="Load" AutoGenerateColumns="False">
                         <DataGrid.Columns>
@@ -30,6 +32,7 @@
                             <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
                         </DataGrid.Columns>
                     </DataGrid>
+                    </StackPanel>
                 </TabItem.Content>
             </TabItem>
             <TabItem x:Name="Samples">
@@ -39,6 +42,42 @@
                         <TextBlock Margin="3" FontSize="14">Выборки</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
+                <TabItem.Content>
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Center" FontSize="14">Нормированные данные</TextBlock>
+                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="Load1">Нормированные данные</Button>
+                        <Button Width="150" Height="25" HorizontalAlignment="Left" Margin="155 -25 0 0" Click="Load2">Не нормированные данные</Button>
+                        <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
+                                <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
+                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
+                                <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
+                                <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
+                                <DataGridTextColumn Header="Аккумулятор(Вт*час)" Binding="{Binding _Battery}"/>
+                                <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">Метрики</TextBlock>
+                        <DataGrid x:Name="Metrics" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Метрик" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
+                                <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
+                                <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
+                                <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
+                                <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>
+                                <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}"/>
+                                <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </TabItem.Content>
             </TabItem>
         </TabControl>
     </Grid>
