@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="Математическая статистика" Height="700" Width="1200" Closing="AppExit">
+        Title="Математическая статистика" Height="700" Width="1200" Closing="AppExit" Loaded="Load">
     <Grid>
         <TabControl>
             <TabItem x:Name="GeneralGrid">
@@ -19,7 +19,7 @@
                     <StackPanel>
                         <Button Width="150" Height="25" HorizontalAlignment="Left">Сохранить изминения(доработать)</Button>
                     <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch" Loaded="Load" AutoGenerateColumns="False">
+                              VerticalAlignment="Stretch" AutoGenerateColumns="False">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
                             <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
@@ -47,7 +47,7 @@
                         <TextBlock HorizontalAlignment="Center" FontSize="14">Нормированные данные</TextBlock>
                         <Button Width="150" Height="25" HorizontalAlignment="Left" Click="Load1">Нормированные данные</Button>
                         <Button Width="150" Height="25" HorizontalAlignment="Left" Margin="155 -25 0 0" Click="Load2">Не нормированные данные</Button>
-                        <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
+                        <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
