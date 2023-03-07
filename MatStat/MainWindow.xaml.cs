@@ -16,7 +16,9 @@ using System.IO;
 using System.Diagnostics;
 using ExcelDataReader;
 using OfficeOpenXml;
+using MathNet.Numerics.Statistics;
 using System.ComponentModel;
+using MathNet.Numerics.Distributions;
 
 namespace MatStat
 {
@@ -60,6 +62,7 @@ namespace MatStat
             // EP+ excel
             // Excel Data Reader
             // Excel Data Reader.Dataset
+            // MathNet Statistics
             
             InitializeComponent();
         }
@@ -186,7 +189,8 @@ namespace MatStat
                 {
                     median.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array3.Add(Median(median));
+                var stat = new DescriptiveStatistics(median);
+                array3.Add(Convert.ToString(Math.Round(stat.Mean,2)));
             }
             metricsGrid.Add(array3);
             ////////////////////////////////////////////////////////
@@ -196,21 +200,72 @@ namespace MatStat
             for (int cols = 1; cols != 9; cols++)
             {
                 array41.Clear();
-                double srAriphmetic = 0;
                 for (int rows = 0; rows != normedGrid.Count; rows++)
                 {
-                    srAriphmetic += Convert.ToDouble(normedGrid[rows][cols]);
+                    array41.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                srAriphmetic /= normedGrid.Count;
-                srAriphmetic = Math.Round(srAriphmetic, 2);
-                for (int rows = 0; rows != normedGrid.Count; rows++)
-                {
-                    array41.Add(Math.Pow((Convert.ToDouble(normedGrid[rows][cols]) - srAriphmetic), 2));
-                }
-                array4.Add(Convert.ToString(Math.Round(array41.Sum() / (normedGrid.Count - 1),2)));
+                var stat = new DescriptiveStatistics(array41);
+                array4.Add(Convert.ToString(Math.Round(stat.Variance,2)));
             }
             metricsGrid.Add(array4);
             ////////////////////////////////////////////////////////////
+            List<string> array5 = new List<string>(); // Эксцесс
+            List<double> array51 = new List<double>();
+            array5.Add("Эксцесс");
+            for (int cols = 1; cols != 9; cols++)
+            {
+                array51.Clear();
+                for (int rows = 0; rows != normedGrid.Count; rows++)
+                {
+                    array51.Add(Convert.ToDouble(normedGrid[rows][cols]));
+                }
+                var stat = new DescriptiveStatistics(array51);
+                array5.Add(Convert.ToString(Math.Round(stat.Kurtosis, 2)));
+            }
+            metricsGrid.Add(array5);
+            ////////////////////////////////////////////////////////////
+            List<string> array6 = new List<string>(); // Среднее стат отклонение
+            List<double> array61 = new List<double>();
+            array6.Add("Среднее статистическое отклонение");
+            for (int cols = 1; cols != 9; cols++)
+            {
+                array61.Clear();
+                for (int rows = 0; rows != normedGrid.Count; rows++)
+                {
+                    array61.Add(Convert.ToDouble(normedGrid[rows][cols]));
+                }
+                array6.Add(Convert.ToString(Math.Round(Mean_deviation(array61),2)));
+            }
+            metricsGrid.Add(array6);
+            ////////////////////////////////////////////////////////////
+            List<string> array7 = new List<string>(); // Ссредняя ошибка
+            List<double> array71 = new List<double>();
+            array7.Add("Средняя ошибка");
+            for (int cols = 1; cols != 9; cols++)
+            {
+                array71.Clear();
+                for(int rows = 0; rows!=normedGrid.Count; rows++)
+                {
+                    array71.Add(Convert.ToDouble(normedGrid[rows][cols]));
+                }
+                array7.Add(Convert.ToString(Math.Round(Mean_error(array71),2)));
+            }
+            metricsGrid.Add(array7);
+            /////////////////////////////////////////////////////////////
+            List<string> array8 = new List<string>(); // Предельная ошибка
+            List<double> array81 = new List<double>();
+            array8.Add("Предельная ошибка");
+            for (int cols = 1; cols != 9; cols++)
+            {
+                array81.Clear();    
+                for (int rows = 0; rows != normedGrid.Count; rows++)
+                {
+                    array81.Add(Convert.ToDouble(normedGrid[rows][cols]));
+                }
+                array8.Add(Convert.ToString(LimError(array81,2.94)));
+            }
+            metricsGrid.Add(array8);
+            /////////////////////////////////////////////////////////////
             foreach (List<string> row in metricsGrid) // создание массива объектов MyTable после всех расчетов, должно быть в самом конце
             {
                 metricsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
@@ -263,23 +318,42 @@ namespace MatStat
         }
         #endregion
 
-        private string Median(List<double> arr)
+        public static double LimError(List<double> list, double confidenceLevel)
         {
-            int numCount = arr.Count;
-            int halfindex = arr.Count / 2;
-            var sortedItems = arr.OrderBy(x => x);
-            double median;
-            if ((numCount%2) == 0)
-            {
-                median = ((sortedItems.ElementAt(halfindex) + sortedItems.ElementAt((halfindex - 1))) / 2);
-            } else
-            {
-                median = sortedItems.ElementAt(halfindex);
-            }
-            return Convert.ToString(median);
+            int sampleSize = list.Count;
+            double standardDeviation = Math.Sqrt(list.Variance());
+            double marginOfError = confidenceLevel * standardDeviation / Math.Sqrt(sampleSize);
+
+            return marginOfError;
+        }
+        public static double Mean_deviation(List<double> list)
+        {
+            double mean = list.Sum() / list.Count();
+            double variance = list.Sum(v => Math.Pow(v - mean, 2)) / (list.Count - 1);
+            double standardDeviation = Math.Sqrt(variance);
+            return standardDeviation;
         }
 
-        private string Moda(List<string> arr)
+        public static double Mean_error(List<double> list)
+        {
+            double sum = 0;
+            int n = list.Count();
+            for (int i = 0; i < n; i++)
+            {
+                sum += list[i];
+            }
+            double mean = sum / n;
+
+            double errorSum = 0;
+            for (int i = 0; i < n; i++)
+            {
+                errorSum += Math.Abs(list[i] - mean);
+            }
+            double meanError = errorSum / n;
+            return meanError;
+        }
+
+        private string Moda(List<string> arr) // вычисление моды
         {
             return arr.GroupBy(x => x).OrderByDescending(x => x.Count()).ThenBy(x => x.Key).Select(x => x.Key).First();
         }
