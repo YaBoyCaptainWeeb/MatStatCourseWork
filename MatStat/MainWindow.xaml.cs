@@ -14,11 +14,11 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics;
-using ExcelDataReader;
 using OfficeOpenXml;
 using MathNet.Numerics.Statistics;
 using System.ComponentModel;
 using MathNet.Numerics.Distributions;
+using Microsoft.Win32;
 
 namespace MatStat
 {
@@ -55,7 +55,7 @@ namespace MatStat
         }
         List<List<string>> grid = new List<List<string>>(); // Исходные данные
         List<MyTable> itemsSource = new List<MyTable>();
-        Microsoft.Office.Interop.Excel.Application Excel = new Microsoft.Office.Interop.Excel.Application();
+       // Microsoft.Office.Interop.Excel.Application Excel = new Microsoft.Office.Interop.Excel.Application();
 
         public MainWindow()
         {
@@ -142,7 +142,7 @@ namespace MatStat
                 for (int rows1 = 0; rows1 != normedGrid.Count; rows1++)
                 {
                     Xnorm = (col[rows1] - colMin) / (colMax - colMin);
-                    normedGrid[rows1][cols] = Convert.ToString(Math.Round(Xnorm,2));
+                    normedGrid[rows1][cols] = Convert.ToString(Math.Round(Xnorm,4));
                 }
             }
 
@@ -190,7 +190,7 @@ namespace MatStat
                     median.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
                 var stat = new DescriptiveStatistics(median);
-                array3.Add(Convert.ToString(Math.Round(stat.Mean,2)));
+                array3.Add(Convert.ToString(Math.Round(stat.Mean,4)));
             }
             metricsGrid.Add(array3);
             ////////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ namespace MatStat
                     array41.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
                 var stat = new DescriptiveStatistics(array41);
-                array4.Add(Convert.ToString(Math.Round(stat.Variance,2)));
+                array4.Add(Convert.ToString(Math.Round(stat.Variance,4)));
             }
             metricsGrid.Add(array4);
             ////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ namespace MatStat
                     array51.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
                 var stat = new DescriptiveStatistics(array51);
-                array5.Add(Convert.ToString(Math.Round(stat.Kurtosis, 2)));
+                array5.Add(Convert.ToString(Math.Round(stat.Kurtosis, 4)));
             }
             metricsGrid.Add(array5);
             ////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ namespace MatStat
                 {
                     array61.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array6.Add(Convert.ToString(Math.Round(Mean_deviation(array61),2)));
+                array6.Add(Convert.ToString(Math.Round(Mean_deviation(array61),4)));
             }
             metricsGrid.Add(array6);
             ////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ namespace MatStat
                 {
                     array71.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array7.Add(Convert.ToString(Math.Round(Mean_error(array71),2)));
+                array7.Add(Convert.ToString(Math.Round(Mean_error(array71),4)));
             }
             metricsGrid.Add(array7);
             /////////////////////////////////////////////////////////////
@@ -262,58 +262,17 @@ namespace MatStat
                 {
                     array81.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array8.Add(Convert.ToString(LimError(array81,2.94)));
+                array8.Add(Convert.ToString(Math.Round(LimError(array81,2.94),4)));
             }
             metricsGrid.Add(array8);
-            /////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////  ОБЪЕМ ВЫБОРКИ ПОСЧИТАТЬ ЕЩЕ!! 
+            ///                                                            Лаба 3 ->Проверка нормальности распределения с помощью критерия Пирсона
+
             foreach (List<string> row in metricsGrid) // создание массива объектов MyTable после всех расчетов, должно быть в самом конце
             {
                 metricsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
             }
-            Metrics.ItemsSource = metricsSource;
-        }
-        #endregion
-        #region Не нормированные таблицы
-        private void Load2(object sender, RoutedEventArgs e) // не нормированная таблица
-        {
-            List<MyTable> itemsSource = new List<MyTable>();
-            List<MyTable> metricsSource = new List<MyTable>();
-            List<List<string>> table = new List<List<string>>();
-
-            for (int i = 0; i != grid.Count; i++) // копия grid для внутренней работы функции
-            {
-                List<string> row = new List<string>();
-                for (int j = 0; j != grid[i].Count; j++)
-                {
-                    row.Add(grid[i][j]);
-                }
-                table.Add(row);
-            }
-            foreach (List<string> row in table)
-            {
-                itemsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
-                        Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
-            }
-
-            NormGrid.ItemsSource = itemsSource;
-
-            List<string> str = new List<string>();   // среднее арифметическое еще дорабатывать
-            str.Add("Среднее арифметическое");
-            for (int cols = 1; cols != 9; cols++)
-            {
-                double srAriphmetic = 0;
-                for (int rows = 0; rows != grid.Count; rows++)
-                {
-                    srAriphmetic += Convert.ToDouble(grid[rows][cols]);
-                }
-                srAriphmetic /= grid.Count;
-                str.Add(Math.Round(srAriphmetic, 2).ToString());
-            }
-
-            
-                metricsSource.Add(new MyTable(str[0], Convert.ToDouble(str[1]), Convert.ToDouble(str[2]), Convert.ToDouble(str[3]),
-                        Convert.ToDouble(str[4]), Convert.ToDouble(str[5]), Convert.ToDouble(str[6]), Convert.ToDouble(str[7]), Convert.ToDouble(str[8])));
             Metrics.ItemsSource = metricsSource;
         }
         #endregion
@@ -367,5 +326,41 @@ namespace MatStat
                 process.Kill();
             }
         }
+
+        private void ReCalculate(object sender, RoutedEventArgs e)
+        {
+            List<MyTable> objects = new List<MyTable>();
+            foreach (var obj in dataGrid.Items)
+            {
+                if (obj.GetType().ToString() == "MatStat.MainWindow+MyTable") 
+                {
+                    objects.Add(obj as MyTable);
+                }
+            }
+
+            grid.Clear();
+            foreach(MyTable obj in objects)
+            {
+                grid.Add(new List<string>()
+                {
+                    obj._model, Convert.ToString(obj._price), Convert.ToString(obj._CPUClock), Convert.ToString(obj._RAMClock),
+                    Convert.ToString(obj._DriveDisk), Convert.ToString(obj._GPUClock), Convert.ToString(obj._Diagonal),
+                    Convert.ToString(obj._Battery), Convert.ToString(obj._Weight)
+                }) ;
+            }     
+            
+            Load1(null, null);
+        }
+
+        private void SaveExcel(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Title = "Сохранить файл как...";
+            if (dlg.ShowDialog() == true)
+            {
+                
+            }
+        }
+
     }
 }

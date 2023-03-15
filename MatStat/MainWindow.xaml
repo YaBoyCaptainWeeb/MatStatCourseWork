@@ -17,10 +17,11 @@
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left">Сохранить изминения(доработать)</Button>
-                    <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
+                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="SaveExcel">Сохранить изменения</Button>
+                        <Button Width="150" Height="25" HorizontalAlignment="Left" Margin="155 -25 0 0" Click="ReCalculate">Перерасчитать изменения</Button>
+                        <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False">
-                        <DataGrid.Columns>
+                            <DataGrid.Columns>
                             <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
                             <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
                             <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
@@ -39,14 +40,13 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Height="10" Width="10" Fill="Black" />
-                        <TextBlock Margin="3" FontSize="14">Выборки</TextBlock>
+                        <TextBlock Margin="3" FontSize="14">Статистики</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel>
                         <TextBlock HorizontalAlignment="Center" FontSize="14">Нормированные данные</TextBlock>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="Load1">Нормированные данные</Button>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left" Margin="155 -25 0 0" Click="Load2">Не нормированные данные</Button>
+                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="Load1">Нормировать</Button>
                         <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
