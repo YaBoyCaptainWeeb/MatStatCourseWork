@@ -33,7 +33,7 @@
                                 <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
-                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAM}"/>
                                 <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
                                 <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
                                 <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
@@ -48,12 +48,11 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Height="10" Width="10" Fill="Black" />
-                        <TextBlock Margin="3" FontSize="14">Статистики</TextBlock>
+                        <TextBlock Margin="3" FontSize="14">Описательная статистика</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel>
-                        <Button Click="Load1">dawdwa</Button>
                         <TextBlock HorizontalAlignment="Center" FontSize="14">Нормированные данные</TextBlock>
                         <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
@@ -61,7 +60,7 @@
                                 <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
-                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAM}"/>
                                 <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
                                 <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
                                 <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
@@ -76,7 +75,7 @@
                                 <DataGridTextColumn Header="Метрик" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
-                                <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
                                 <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
                                 <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
                                 <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>

@@ -21,51 +21,19 @@ using MathNet.Numerics.Distributions;
 using Microsoft.Win32;
 using ScottPlot;
 using ScottPlot.WPF;
+using ScottPlot.Statistics;
 using System.Drawing;
 
 namespace MatStat
 {
     public partial class MainWindow : Window
     {
-        public class MyTable
-        {
-            public string _model { get; set; }
-            public double _price { get; set; }
-            public double _CPUClock { get; set; }
-            public double _RAMClock { get; set; }
-            public double _DriveDisk { get; set; }
-            public double _GPUClock { get; set; }
-            public double _Diagonal { get; set; }
-            public double _Battery { get; set; }
-            public double _Weight { get; set; }
-            
-            public MyTable(string model,double price, double CPUClock, double RABClock, double DriveDisk,double GPUClock, double Diagonal, double Battery, double Weight)
-            {
-                _model = model;
-                _price = price;
-                _CPUClock = CPUClock;
-                _RAMClock = RABClock;
-                _DriveDisk = DriveDisk;
-                _GPUClock = GPUClock;
-                _Diagonal = Diagonal;
-                _Battery = Battery;
-                _Weight = Weight;
-            }
-            public MyTable()
-            {
 
-            }
-        }
         List<List<string>> grid = new List<List<string>>(); // Исходные данные
         List<MyTable> itemsSource = new List<MyTable>(); // Данные для таблиц
 
         public MainWindow()
-        {
-            // EP+ excel
-            // Excel Data Reader
-            // Excel Data Reader.Dataset
-            // MathNet Statistics
-            
+        {            
             InitializeComponent();
         }
 
@@ -95,8 +63,8 @@ namespace MatStat
                     itemsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
                 }
-
-                //Load1();
+                dataGrid.ItemsSource = itemsSource;
+                Load1();
             }
             catch (Exception)
             {
@@ -109,12 +77,11 @@ namespace MatStat
                 }
                 Application.Current.Shutdown();
             }
-            dataGrid.ItemsSource = itemsSource;
+            
         }
         #region Нормированные таблицы
-        private void Load1(object sender,RoutedEventArgs e) // Все расчеты(НЕ ДОДЕЛАНО ЕЩЕ ВЛАДИК ДОДЕЛОЙ???)
+        private void Load1() // Все расчеты(НЕ ДОДЕЛАНО ЕЩЕ ВЛАДИК ДОДЕЛОЙ???)
         {
-            List<double> col = new List<double>();
             List<MyTable> itemsSource = new List<MyTable>(); // Массив для таблиц обычных(для таблиц)
             List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
             List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
@@ -133,6 +100,7 @@ namespace MatStat
 
             for (int cols = 1; cols != 9; cols++) // нормирование
             {
+                List<double> col = new List<double>();
                 for (int rows = 0; rows != grid.Count; rows++)
                 {
                     col.Add(Convert.ToDouble(grid[rows][cols]));
@@ -291,24 +259,10 @@ namespace MatStat
             }
             Metrics.ItemsSource = metricsSource;
             //////////////////////////////////----Нормальность распределения----////////////////////////////////
-            double[,] arr = ToArr(normedGrid);
-            double[] dataX = new double[8];
-            double[] dataY = new double[8];
-            double pirson = GetPirson(GetArray(arr, 0));
-            double critical = GetCritical(GetArray(arr, 0)) + 1.2;
-            string normal = critical > pirson ? "присутствует" : "отсутствует";
-            double[,] coor = GetRate(GetArray(arr, 0));
-            for (int i = 0; i != 8; i++)
-            {
-                dataX[i] = Math.Round(coor[i, 0], 2);
-                dataY[i] = Math.Round(coor[i, 1], 2);
-            }
-            Ch1.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
-            Ch1.Plot.AddScatter(dataX, dataY);
-            Ch1.Plot.Title("Цена");
-            Ch1.Refresh();
+            LoadCharts(normedGrid); // Перенес портянку кода в отдельную функцию
         }
         #endregion
+        
 
 
         #region Функции
@@ -387,26 +341,38 @@ namespace MatStat
         private void ReCalculate(object sender, RoutedEventArgs e)
         {
             List<MyTable> objects = new List<MyTable>();
-            foreach (var obj in dataGrid.Items)
+            foreach (var obj in dataGrid.ItemsSource)
             {
-                if (obj.GetType().ToString() == "MatStat.MainWindow+MyTable") 
-                {
                     objects.Add(obj as MyTable);
-                }
             }
-
-            grid.Clear();
-            foreach(MyTable obj in objects)
+            if (objects.Count > 8)
             {
-                grid.Add(new List<string>()
+                grid.Clear();
+                foreach (MyTable obj in objects)
                 {
-                    obj._model, Convert.ToString(obj._price), Convert.ToString(obj._CPUClock), Convert.ToString(obj._RAMClock),
+                    grid.Add(new List<string>()
+                {
+                    obj._model, Convert.ToString(obj._price), Convert.ToString(obj._CPUClock), Convert.ToString(obj._RAM),
                     Convert.ToString(obj._DriveDisk), Convert.ToString(obj._GPUClock), Convert.ToString(obj._Diagonal),
                     Convert.ToString(obj._Battery), Convert.ToString(obj._Weight)
-                }) ;
-            }     
+                });
+                }
+
+                Ch1.Plot.Clear();
+                Ch2.Plot.Clear();
+                Ch3.Plot.Clear();
+                Ch4.Plot.Clear();
+                Ch5.Plot.Clear();
+                Ch6.Plot.Clear();
+                Ch7.Plot.Clear();
+                Ch8.Plot.Clear();
+
+                Load1();
+            } else
+            {
+                MessageBox.Show("Для корректной работы расчетов нужно не менее 8 наблюдений.\nПожалуйста, добавьте больше наблюдений, либо верните удаленные");
+            }
             
-            //Load1();
         }
 
         private void SaveExcel(object sender, RoutedEventArgs e)  // ДОДЕЛАТЬ СОХРАНЯЛКУ
@@ -512,6 +478,145 @@ namespace MatStat
             Random rnd = new Random((int)Math.Round(f*1000));
             res += (k >= 0.5 ? 1 : -1) * (rnd.Next(1, 2) + rnd.NextDouble());
             return Math.Round(res, 4);
+        }
+
+        public void LoadCharts(List<List<string>> list) // отрисовка графиков
+        {
+            double[,] arr = ToArr(list); // преобразуем текстовую таблицу в таблицу из double значений 
+            double[] dataX = new double[8];
+            double[] dataY = new double[8];
+            double pirson = GetPirson(GetArray(arr, 0)); // делаем расчеты
+            double critical = GetCritical(GetArray(arr, 0)) + 1.2;
+            string normal = critical > pirson ? "присутствует" : "отсутствует";
+            double[,] coor = GetRate(GetArray(arr, 0));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch1.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch1.Plot.AddScatter(dataX, dataY);
+            Ch1.Plot.Title("Цена");
+            Ch1.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 1));
+            critical = GetCritical(GetArray(arr, 1)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 1));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch2.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch2.Plot.AddScatter(dataX, dataY);
+            Ch2.Plot.Title("Частота процессора");
+            Ch2.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 2));
+            critical = GetCritical(GetArray(arr, 2)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 2));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch3.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch3.Plot.AddScatter(dataX, dataY);
+            Ch3.Plot.Title("Оперативная память");
+            Ch3.Refresh();
+            ///////////////////////////////////////////////////////////////////////// 
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 3));
+            critical = GetCritical(GetArray(arr, 3)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 3));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch4.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch4.Plot.AddScatter(dataX, dataY);
+            Ch4.Plot.Title("Жесткий диск/накопитель");
+            Ch4.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 4));
+            critical = GetCritical(GetArray(arr, 4)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 4));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch5.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch5.Plot.AddScatter(dataX, dataY);
+            Ch5.Plot.Title("Частота графического процессора");
+            Ch5.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 5));
+            critical = GetCritical(GetArray(arr, 5)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 5));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch6.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch6.Plot.AddScatter(dataX, dataY);
+            Ch6.Plot.Title("Диагональ экрана");
+            Ch6.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 6));
+            critical = GetCritical(GetArray(arr, 6)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 6));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch7.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch7.Plot.AddScatter(dataX, dataY);
+            Ch7.Plot.Title("Аккумулятор");
+            Ch7.Refresh();
+            /////////////////////////////////////////////////////////////////////////
+            dataX = new double[8];
+            dataY = new double[8];
+            coor = null;
+            pirson = GetPirson(GetArray(arr, 7));
+            critical = GetCritical(GetArray(arr, 7)) + 1.2;
+            normal = critical > pirson ? "присутствует" : "отсутствует";
+            coor = GetRate(GetArray(arr, 7));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch8.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch8.Plot.AddScatter(dataX, dataY);
+            Ch8.Plot.Title("Вес");
+            Ch8.Refresh();
         }
         #endregion
 
