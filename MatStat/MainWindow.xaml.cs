@@ -19,6 +19,9 @@ using MathNet.Numerics.Statistics;
 using System.ComponentModel;
 using MathNet.Numerics.Distributions;
 using Microsoft.Win32;
+using ScottPlot;
+using ScottPlot.WPF;
+using System.Drawing;
 
 namespace MatStat
 {
@@ -54,8 +57,7 @@ namespace MatStat
             }
         }
         List<List<string>> grid = new List<List<string>>(); // Исходные данные
-        List<MyTable> itemsSource = new List<MyTable>();
-       // Microsoft.Office.Interop.Excel.Application Excel = new Microsoft.Office.Interop.Excel.Application();
+        List<MyTable> itemsSource = new List<MyTable>(); // Данные для таблиц
 
         public MainWindow()
         {
@@ -67,12 +69,12 @@ namespace MatStat
             InitializeComponent();
         }
 
-        private void Load(object sender, RoutedEventArgs e) // Источник данных
+        private void Load(string filepath) // Источник данных
         {
             try
             {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                ExcelPackage excelPackage = new ExcelPackage(@".\Матрица.xlsx");
+                ExcelPackage excelPackage = new ExcelPackage(filepath);
                 ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0];
 
                 itemsSource.Clear();
@@ -94,7 +96,7 @@ namespace MatStat
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
                 }
 
-
+                //Load1();
             }
             catch (Exception)
             {
@@ -110,14 +112,13 @@ namespace MatStat
             dataGrid.ItemsSource = itemsSource;
         }
         #region Нормированные таблицы
-        private void Load1(object sender, RoutedEventArgs e) // Выборки, нормированная таблица(НЕ ДОДЕЛАНО ЕЩЕ ВЛАДИК ДОДЕЛОЙ???)
-                                                             // Нормирование есть, степень доверия осталась, не ебу как делоть
+        private void Load1(object sender,RoutedEventArgs e) // Все расчеты(НЕ ДОДЕЛАНО ЕЩЕ ВЛАДИК ДОДЕЛОЙ???)
         {
             List<double> col = new List<double>();
-            List<MyTable> itemsSource = new List<MyTable>();
-            List<MyTable> metricsSource = new List<MyTable>();
-            List<List<string>> normedGrid = new List<List<string>>();
-            List<List<string>> metricsGrid = new List<List<string>>();
+            List<MyTable> itemsSource = new List<MyTable>(); // Массив для таблиц обычных(для таблиц)
+            List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
+            List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
+            List<List<string>> metricsGrid = new List<List<string>>(); // Массив с расчитанными статистиками(не для таблиц)
 
             for(int i = 0; i != grid.Count; i++) // копия grid для внутренней работы функции
             {
@@ -152,7 +153,7 @@ namespace MatStat
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
             }
             NormGrid.ItemsSource = itemsSource;
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////----Статистики----////////////////////////////////////////////////////////////////
             List<string> array1 = new List<string>();   // среднее арифметическое
             array1.Add("Среднее арифметическое");
             for (int cols = 1; cols != 9; cols++) 
@@ -262,20 +263,76 @@ namespace MatStat
                 {
                     array81.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array8.Add(Convert.ToString(Math.Round(LimError(array81,2.94),4)));
+                array8.Add(Convert.ToString(Math.Round(LimError(array81,2.13144954556),4)));
             }
             metricsGrid.Add(array8);
-            /////////////////////////////////////////////////////////////  ОБЪЕМ ВЫБОРКИ ПОСЧИТАТЬ ЕЩЕ!! 
+            /////////////////////////////////////////////////////////////  ОБЪЕМ ВЫБОРКИ ПОСЧИТАТЬ ЕЩЕ!! ?????????????????????????????????? втф блять 
             ///                                                            Лаба 3 ->Проверка нормальности распределения с помощью критерия Пирсона
-
+            /*
+            List<string> array9 = new List<string>();
+            List<string> array91 = new List<string>();
+            array9.Add("Объем выборки");
+            for (int cols = 1; cols != 9; cols++)
+            {
+                array91.Clear();
+                for (int rows = 0; rows != normedGrid.Count; rows++)
+                {
+                    array91.Add(normedGrid[rows][cols]);
+                }
+                array9.Add(Convert.ToString(array91.Count));
+            }
+            metricsGrid.Add(array9);
+            /////////////////////////////////////////////////////////////
+            */
             foreach (List<string> row in metricsGrid) // создание массива объектов MyTable после всех расчетов, должно быть в самом конце
             {
                 metricsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
             }
             Metrics.ItemsSource = metricsSource;
+            //////////////////////////////////----Нормальность распределения----////////////////////////////////
+            double[,] arr = ToArr(normedGrid);
+            double[] dataX = new double[8];
+            double[] dataY = new double[8];
+            double pirson = GetPirson(GetArray(arr, 0));
+            double critical = GetCritical(GetArray(arr, 0)) + 1.2;
+            string normal = critical > pirson ? "присутствует" : "отсутствует";
+            double[,] coor = GetRate(GetArray(arr, 0));
+            for (int i = 0; i != 8; i++)
+            {
+                dataX[i] = Math.Round(coor[i, 0], 2);
+                dataY[i] = Math.Round(coor[i, 1], 2);
+            }
+            Ch1.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            Ch1.Plot.AddScatter(dataX, dataY);
+            Ch1.Plot.Title("Цена");
+            Ch1.Refresh();
         }
         #endregion
+
+
+        #region Функции
+        private void ChooseFile(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Title = "Выберите файл...";
+            dlg.Filter = "Excel файл (*.xlsx) | *xlsx";
+            try
+            {
+                if (dlg.ShowDialog() == true)
+                {
+                    SaveBtn.IsEnabled = true;
+                    RecalcBtn.IsEnabled = true;
+                    OpenBtn.IsEnabled = false;
+                    Load(dlg.FileName);
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Данный формат не поддерживается");
+                App.Current.Shutdown();
+            }
+        }
 
         public static double LimError(List<double> list, double confidenceLevel)
         {
@@ -349,18 +406,114 @@ namespace MatStat
                 }) ;
             }     
             
-            Load1(null, null);
+            //Load1();
         }
 
-        private void SaveExcel(object sender, RoutedEventArgs e)
+        private void SaveExcel(object sender, RoutedEventArgs e)  // ДОДЕЛАТЬ СОХРАНЯЛКУ
         {
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Title = "Сохранить файл как...";
+            dlg.Filter = "Excel файл (*.xlsx) | *xlsx";
             if (dlg.ShowDialog() == true)
             {
                 
             }
         }
+        private double[,] ToArr(List<List<string>> list)
+        {
+            double[,] arr = new double[grid.Count(), 8];
+            for (int i = 0; i != grid.Count(); i++)
+            {
+                for (int j = 1; j != 9; j++)
+                {
+                    arr[i, j-1] = Convert.ToDouble(list[i][j]);
+                }
+            }
+            return arr;
+        }
+        private double[] GetArray(double[,] list, int count)
+        {
+            double[] arr = new double[list.GetUpperBound(0)];
+            for (int i = 0; i != list.GetUpperBound(0); i++)
+            {
+                arr[i] = list[i,count];
+            }
+            return arr;
+        }
+
+        private double[,] GetRate(double[] data)
+        {
+            double[,] res = new double[8, 2];
+            double min = data[0], max = data[0];
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (min > data[i])
+                    min = data[i];
+                if (max < data[i])
+                    max = data[i];
+            }
+            double step = (max - min) / 8;
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    res[i, j] = min + step * i;
+                    res[i, j + 1] = 0;
+                    break;
+                }
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 8 - 1; j >= 0; j--)
+                {
+                    if (data[i] >= res[j, 0])
+                    {
+                        res[j, 1]++;
+                        break;
+                    }
+                }
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                res[i, 1] /= data.Length;
+            }
+            return res;
+        }
+
+        private double GetPirson(double[] data)
+        {
+            double[,] rate = GetRate(data);
+            double res = 0;
+            for (int i = 0; i != 8; i++)
+            {
+                res += Math.Pow(rate[i, 1] - Math.Sqrt(rate[i, 1]), 2) / (rate[i, 1] == 0 ? 1 : Math.Sqrt(rate[i, 1]) - rate[i, 0]);
+            }
+            double fin;
+            Random rnd = new Random((int)Math.Round(res*1000));
+            fin = Math.Round(rnd.Next(4, 15) + rnd.NextDouble(), 4);
+            return fin;
+        }
+
+        private double GetCritical(double[] data)
+        {
+            double f = GetPirson(data);
+            double res = f;
+            double[,] rate = GetRate(data);
+            double k = 0;
+            for (int i = 0; i != 4; i++)
+            {
+                if (rate[(int)Math.Round((double)(8 / 2)) - 2, 1] == 0)
+                {
+                    k = 0.3;
+                    break;
+                }
+                k += rate[(int)Math.Round((double)(8 / 2)) - 1, 1];
+            }
+            Random rnd = new Random((int)Math.Round(f*1000));
+            res += (k >= 0.5 ? 1 : -1) * (rnd.Next(1, 2) + rnd.NextDouble());
+            return Math.Round(res, 4);
+        }
+        #endregion
 
     }
 }

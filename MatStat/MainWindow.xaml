@@ -5,9 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="Математическая статистика" Height="700" Width="1200" Closing="AppExit" Loaded="Load">
+        Title="Математическая статистика" Height="750" Width="1420" Closing="AppExit" WindowStartupLocation="CenterScreen">
     <Grid>
-        <TabControl>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="59*"/>
+            <ColumnDefinition Width="164*"/>
+            <ColumnDefinition Width="977*"/>
+        </Grid.ColumnDefinitions>
+        <TabControl Grid.ColumnSpan="3">
             <TabItem x:Name="GeneralGrid">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -17,22 +22,25 @@
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="SaveExcel">Сохранить изменения</Button>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left" Margin="155 -25 0 0" Click="ReCalculate">Перерасчитать изменения</Button>
+                        <Menu>
+                            <MenuItem x:Name="OpenBtn" Header="Открыть файл..." FontSize="14" Click="ChooseFile"/>
+                            <MenuItem x:Name="SaveBtn" Header="Сохранить изменения" FontSize="14" Width="150" Height="25" Click="SaveExcel" IsEnabled="False"/>
+                            <MenuItem x:Name="RecalcBtn" Header ="Перерасчитать изменения"  FontSize="14" Width="180" Height="25" Click="ReCalculate" IsEnabled="False"/>
+                        </Menu>
                         <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False">
                             <DataGrid.Columns>
-                            <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
-                            <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
-                            <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
-                            <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
-                            <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
-                            <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
-                            <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
-                            <DataGridTextColumn Header="Аккумулятор(Вт*час)" Binding="{Binding _Battery}"/>
-                            <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                                <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
+                                <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
+                                <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAMClock}"/>
+                                <DataGridTextColumn Header="Жесткий диск/накопитель(ГБ)" Binding="{Binding _DriveDisk}"/>
+                                <DataGridTextColumn Header="Частота графического процессора(МГц)" Binding="{Binding _GPUClock}"/>
+                                <DataGridTextColumn Header="Диагональ экрана(Дюйм)" Binding="{Binding _Diagonal}"/>
+                                <DataGridTextColumn Header="Аккумулятор(Вт*час)" Binding="{Binding _Battery}"/>
+                                <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </StackPanel>
                 </TabItem.Content>
             </TabItem>
@@ -45,8 +53,8 @@
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel>
+                        <Button Click="Load1">dawdwa</Button>
                         <TextBlock HorizontalAlignment="Center" FontSize="14">Нормированные данные</TextBlock>
-                        <Button Width="150" Height="25" HorizontalAlignment="Left" Click="Load1">Нормировать</Button>
                         <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
@@ -61,7 +69,7 @@
                                 <DataGridTextColumn Header="Вес(кг)" Binding="{Binding _Weight}"/>
                             </DataGrid.Columns>
                         </DataGrid>
-                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">Метрики</TextBlock>
+                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14">Статистики. Доверительная вероятность: 0,95</TextBlock>
                         <DataGrid x:Name="Metrics" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
@@ -76,6 +84,30 @@
                                 <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
                             </DataGrid.Columns>
                         </DataGrid>
+                    </StackPanel>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem x:Name="Pierce">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="10" Width="10" Fill="Black" />
+                        <TextBlock Margin="3" FontSize="14">Нормальность распределения</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <StackPanel ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                <WpfPlot x:Name="Ch1" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch2" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch3" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch4" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch5" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch6" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch7" Width="300" MinHeight="650"/>
+                                <WpfPlot x:Name="Ch8" Width="300" MinHeight="650"/>
+                            </StackPanel>
+                        </ScrollViewer>
                     </StackPanel>
                 </TabItem.Content>
             </TabItem>
