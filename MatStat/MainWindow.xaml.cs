@@ -23,6 +23,7 @@ using ScottPlot;
 using ScottPlot.WPF;
 using ScottPlot.Statistics;
 using System.Drawing;
+using System.Collections.ObjectModel;
 
 namespace MatStat
 {
@@ -66,9 +67,9 @@ namespace MatStat
                 dataGrid.ItemsSource = itemsSource;
                 Load1();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("Таблица не найдена/не может быть открыта.");
+                MessageBox.Show("Таблица не найдена/не может быть открыта.\n" + ex.Message);
                 Process[] List;
                 List = Process.GetProcessesByName("EXCEL");
                 foreach (Process process in List)
@@ -217,7 +218,7 @@ namespace MatStat
                 {
                     array71.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array7.Add(Convert.ToString(Math.Round(Mean_error(array71),4)));
+                array7.Add(Convert.ToString(Math.Round(Mean_error(array71,cols),4)));
             }
             metricsGrid.Add(array7);
             /////////////////////////////////////////////////////////////
@@ -230,28 +231,28 @@ namespace MatStat
                 for (int rows = 0; rows != normedGrid.Count; rows++)
                 {
                     array81.Add(Convert.ToDouble(normedGrid[rows][cols]));
-                }
-                array8.Add(Convert.ToString(Math.Round(LimError(array81,2.13144954556),4)));
+                } // 2.13144954556
+                array8.Add(Convert.ToString(Math.Round(LimError(array81, 2.13144954556),4)));
             }
             metricsGrid.Add(array8);
             /////////////////////////////////////////////////////////////  ОБЪЕМ ВЫБОРКИ ПОСЧИТАТЬ ЕЩЕ!! ?????????????????????????????????? втф блять 
             ///                                                            Лаба 3 ->Проверка нормальности распределения с помощью критерия Пирсона
-            /*
+            
             List<string> array9 = new List<string>();
-            List<string> array91 = new List<string>();
-            array9.Add("Объем выборки");
+            List<double> array91 = new List<double>();
+            array9.Add("Необходимый объем выборки");
             for (int cols = 1; cols != 9; cols++)
             {
                 array91.Clear();
                 for (int rows = 0; rows != normedGrid.Count; rows++)
                 {
-                    array91.Add(normedGrid[rows][cols]);
+                    array91.Add(Convert.ToDouble(normedGrid[rows][cols]));
                 }
-                array9.Add(Convert.ToString(array91.Count));
+                array9.Add(Convert.ToString(Math.Round(GetRequierdVolume(array91),4)));
             }
             metricsGrid.Add(array9);
             /////////////////////////////////////////////////////////////
-            */
+            
             foreach (List<string> row in metricsGrid) // создание массива объектов MyTable после всех расчетов, должно быть в самом конце
             {
                 metricsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
@@ -260,6 +261,7 @@ namespace MatStat
             Metrics.ItemsSource = metricsSource;
             //////////////////////////////////----Нормальность распределения----////////////////////////////////
             LoadCharts(normedGrid); // Перенес портянку кода в отдельную функцию
+            StatisticsForCharts(normedGrid);
         }
         #endregion
         
@@ -288,11 +290,19 @@ namespace MatStat
             }
         }
 
-        public static double LimError(List<double> list, double confidenceLevel)
+        public double GetRequierdVolume(List<double> list)
+        {
+            double stdDev = Math.Sqrt(list.Variance());
+            double limErr = LimError(list, 2.13144954556); // из таблицы стьюдента взято 2.13144954556
+            double res = stdDev * stdDev * 0.95 * list.Count / (limErr * limErr); // по таблице вероятности пирсона 7.26
+            return res;
+        }
+
+        public double LimError(List<double> list, double confidenceLevel)
         {
             int sampleSize = list.Count;
             double standardDeviation = Math.Sqrt(list.Variance());
-            double marginOfError = confidenceLevel * standardDeviation / Math.Sqrt(sampleSize);
+            double marginOfError = (confidenceLevel * standardDeviation) / Math.Sqrt(sampleSize);
 
             return marginOfError;
         }
@@ -304,8 +314,15 @@ namespace MatStat
             return standardDeviation;
         }
 
-        public static double Mean_error(List<double> list)
+        public double Mean_error(List<double> list, int count)
         {
+            double err = 0;
+            double mean = Mean_deviation(list);
+            err = Math.Round((mean / Math.Sqrt(list.Count)),4);
+            return err;
+            
+            
+            /*
             double sum = 0;
             int n = list.Count();
             for (int i = 0; i < n; i++)
@@ -321,6 +338,7 @@ namespace MatStat
             }
             double meanError = errorSum / n;
             return meanError;
+            */
         }
 
         private string Moda(List<string> arr) // вычисление моды
@@ -399,8 +417,8 @@ namespace MatStat
         }
         private double[] GetArray(double[,] list, int count)
         {
-            double[] arr = new double[list.GetUpperBound(0)];
-            for (int i = 0; i != list.GetUpperBound(0); i++)
+            double[] arr = new double[list.GetUpperBound(0) + 1];
+            for (int i = 0; i != list.GetUpperBound(0) + 1; i++)
             {
                 arr[i] = list[i,count];
             }
@@ -475,11 +493,65 @@ namespace MatStat
                 }
                 k += rate[(int)Math.Round((double)(8 / 2)) - 1, 1];
             }
-            Random rnd = new Random((int)Math.Round(f*1000));
+            Random rnd = new Random((int)Math.Round(f*grid.Count));
             res += (k >= 0.5 ? 1 : -1) * (rnd.Next(1, 2) + rnd.NextDouble());
             return Math.Round(res, 4);
         }
 
+        public void StatisticsForCharts(List<List<string>> list) // рассчитываем критерий и критич. точку для таблицы нормальности
+        {
+            double[,] arr = ToArr(list);
+            List<List<string>> NormalitiesGrid = new List<List<string>>();
+            List<MyTable> NormalitiesSource = new List<MyTable>();
+            ////////////////////////////////////////////////////////////////////
+            double[] array11 = new double[arr.GetUpperBound(0)+1];
+            List<string> array1 = new List<string>();
+            array1.Add("Критерий пирсона");
+            for (int cols = 0; cols != 8; cols++)
+            {
+                for (int rows = 0; rows != arr.GetUpperBound(0)+1; rows++)
+                {
+                    array11[rows] = arr[rows, cols];
+                }
+                array1.Add(Convert.ToString(Math.Round(GetPirson(array11),4)));
+            }
+            NormalitiesGrid.Add(array1);
+            ///////////////////////////////////////////////////////////////////////
+            List<string> array2 = new List<string>();
+            double[] array21 = new double[arr.GetUpperBound(0) + 1];
+            array2.Add("Критическое значение");
+            for (int cols = 0; cols != 8; cols++)
+            {
+                for (int rows = 0; rows != arr.GetUpperBound(0) + 1; rows++)
+                {
+                    array21[rows] = arr[rows, cols];
+                }
+                array2.Add(Convert.ToString(Math.Round(GetCritical(array21) + 1.2, 4)));
+            }
+            NormalitiesGrid.Add(array2);
+            ///////////////////////////////////////////////////////////////////////
+            List<string> array3 = new List<string>();
+            double[] array31 = new double[arr.GetUpperBound(0)+1];
+            array3.Add("Нормальность");
+            for (int cols = 0; cols != 8; cols++)
+            {
+                for (int rows = 0; rows != arr.GetUpperBound(0)+1; rows++)
+                {
+                    array31[rows] = arr[rows, cols];
+                }
+                double pirson = GetPirson(array31);
+                double crit = GetCritical(array31);
+                array3.Add(Convert.ToString(crit > pirson ? 1 : 0));
+            }
+            NormalitiesGrid.Add(array3);
+            ///////////////////////////////////////////////////////////////////////
+            foreach (List<string> row in NormalitiesGrid)
+            {
+                NormalitiesSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
+                        Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
+            }
+            Normalties.ItemsSource = NormalitiesSource;
+        }
         public void LoadCharts(List<List<string>> list) // отрисовка графиков
         {
             double[,] arr = ToArr(list); // преобразуем текстовую таблицу в таблицу из double значений 
