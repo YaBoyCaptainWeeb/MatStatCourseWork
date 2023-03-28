@@ -57,7 +57,7 @@
                         <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
                                 <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAM}"/>
@@ -72,7 +72,7 @@
                         <DataGrid x:Name="Metrics" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Метрик" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
                                 <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
@@ -110,7 +110,7 @@
                         <DataGrid x:Name="Normalties" HorizontalAlignment="Center"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Метрик" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
                                 <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
@@ -122,6 +122,37 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="10" Width="10" Fill="Black" />
+                        <TextBlock Margin="3" FontSize="14">Таблица корреляций</TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
+                        <WrapPanel Orientation="Vertical"  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Парный корреляционный анализ" FontSize="14" Background="White" HorizontalAlignment="Center"/>
+                                <DataGrid x:Name="CoupleCorrelation" HorizontalAlignment="Center"
+                              VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
+                                        <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
+                                        <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
+                                        <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
+                                        <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
+                                        <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
+                                        <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>
+                                        <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}"/>
+                                        <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </WrapPanel>
+                    </ScrollViewer>
                 </TabItem.Content>
             </TabItem>
         </TabControl>
