@@ -24,12 +24,12 @@ using ScottPlot.WPF;
 using ScottPlot.Statistics;
 using System.Drawing;
 using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace MatStat
 {
     public partial class MainWindow : Window
     {
-
         public static List<List<string>> grid = new List<List<string>>(); // Исходные данные
         List<MyTable> itemsSource = new List<MyTable>(); // Данные для таблиц
 
@@ -73,6 +73,7 @@ namespace MatStat
         {
             List<MyTable> itemsSource = new List<MyTable>(); // Массив для таблиц обычных(для таблиц)
             List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
+            List<MyTable> correlationSource = new List<MyTable>();
             List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
             List<List<string>> metricsGrid = new List<List<string>>(); // Массив с расчитанными статистиками(не для таблиц)
 
@@ -250,15 +251,22 @@ namespace MatStat
             LoadCharts(normedGrid); // Перенес портянку кода в отдельную функцию
             StatisticsForCharts(normedGrid);
             //////////////////////////////////----Корреляция----////////////////////////////////////////////////
+            /// КОРРЕЛЯЦИОННЫЕ ПЛЕЯДЫ ДОДЕЛАТЬ
             Correlation cor = new Correlation();
-            double[,] arr = cor.ToArr(normedGrid);
-            MessageBox.Show(arr.Rank + " " + arr.Length.ToString()); // ДОДЕЛАТЬ КОРРЕЛЯЦИЮ
+            double[,] correlatedArr = cor.CoupleCorrelate(ToArr(normedGrid));
+            for(int  i = 0; i < correlatedArr.GetUpperBound(0) + 1; i++)
+            {
+                correlationSource.Add(new MyTable(CoupleCorrelation.Columns[i+1].Header.ToString(), correlatedArr[i, 0], correlatedArr[i, 1], correlatedArr[i, 2], correlatedArr[i, 3],
+                    correlatedArr[i, 4], correlatedArr[i, 5], correlatedArr[i, 6], correlatedArr[i, 7]));
+            }
+            CoupleCorrelation.ItemsSource = correlationSource;
         }
         #endregion
         
 
 
         #region Функции
+
         private void ChooseFile(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
@@ -386,7 +394,7 @@ namespace MatStat
             }
         }
        
-        private double[,] ToArr(List<List<string>> list)
+        private double[,] ToArr(List<List<string>> list) // запарсить List в массив double[,]
         {
             double[,] arr = new double[grid.Count(), 8];
             for (int i = 0; i != grid.Count(); i++)
@@ -398,7 +406,7 @@ namespace MatStat
             }
             return arr;
         }
-        private double[] GetArray(double[,] list, int count)
+        private double[] GetArray(double[,] list, int count) // Вытянуть столбце из double[,] массива
         {
             double[] arr = new double[list.GetUpperBound(0) + 1];
             for (int i = 0; i != list.GetUpperBound(0) + 1; i++)

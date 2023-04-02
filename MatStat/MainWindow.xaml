@@ -5,14 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="Математическая статистика" Height="750" Width="1420" Closing="AppExit" WindowStartupLocation="CenterScreen">
+        Title="Математическая статистика" Height="770" Width="1420" Closing="AppExit" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:CellConverter x:Key="convert"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="59*"/>
             <ColumnDefinition Width="164*"/>
             <ColumnDefinition Width="977*"/>
         </Grid.ColumnDefinitions>
-        <TabControl Grid.ColumnSpan="3">
+        <TabControl Grid.ColumnSpan="3" x:Name="Tabs">
             <TabItem x:Name="GeneralGrid">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -95,7 +98,8 @@
                 </TabItem.Header>
                 <TabItem.Content>
                     <StackPanel Background="Gray" Orientation="Vertical"  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto" >
+                        <TextBlock HorizontalAlignment="Center" FontSize="14" FontWeight="Black" Background="White">Уровень значимости α: 0.05</TextBlock>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
                             <WrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="600" Orientation="Vertical">
                                 <WpfPlot x:Name="Ch1" Width="300" Height="300"/>
                                 <WpfPlot x:Name="Ch2" Width="300" Height="300"/>
@@ -128,7 +132,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Height="10" Width="10" Fill="Black" />
-                        <TextBlock Margin="3" FontSize="14">Таблица корреляций</TextBlock>
+                        <TextBlock Margin="3" FontSize="14">Корреляция</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
@@ -139,15 +143,63 @@
                                 <DataGrid x:Name="CoupleCorrelation" HorizontalAlignment="Center"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
-                                        <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
-                                        <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
-                                        <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
-                                        <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
-                                        <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
-                                        <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>
-                                        <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}"/>
-                                        <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
+                                        <DataGridTextColumn Header="          " Binding="{Binding _model}"/>
+                                        <DataGridTextColumn Header="Цена" Binding="{Binding _price}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _price, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _CPUClock, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _RAM, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _DriveDisk, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _GPUClock, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Diagonal, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Battery, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Weight, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </StackPanel>
