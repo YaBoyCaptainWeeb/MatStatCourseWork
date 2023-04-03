@@ -17,25 +17,25 @@ namespace MatStat
             double val = (double)value;
             if (val <= 1.0 && val >= 0.7)
             {
-                return new SolidColorBrush(System.Windows.Media.Color.FromArgb(0,0,176,80));
+                return "LimeGreen";
             }
-            else if (val <= 0.69 && val >= 0.3)
+            else if (val <= 0.6999 && val >= 0.5)
             {
-                return new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 252, 192, 0));
+                return "Yellow";
             }
-            else if (val <= 0.29 && val >= 0.00001)
+            else if (val <= 0.4999 && val >= 0.2)
             {
-                return "LightSalmon";
+                return "Gold";
             }
-            else if (val <= -0.00001 && val >= -0.29)
+            else if (val <= 0.1999 && val >= 0.0001)
             {
                 return "Orange";
             }
-            else if (val <= -0.3 && val >= -0.69)
+            else if (val <= 0.0001 && val >= -0.4999)
             {
-                return "LightCoral";
+                return "Red";
             }
-            else if (val <= -0.7 && val >= -1.0)
+            else if (val <= -0.5 && val >= -1.0)
             {
                 return "Red";
             }

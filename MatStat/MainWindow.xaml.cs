@@ -73,7 +73,8 @@ namespace MatStat
         {
             List<MyTable> itemsSource = new List<MyTable>(); // Массив для таблиц обычных(для таблиц)
             List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
-            List<MyTable> correlationSource = new List<MyTable>();
+            List<MyTable> coupleCorrelationSource = new List<MyTable>(); // Массив для таблицы с парной корреляцией
+            List<MyTable> partialCorrelationSource = new List<MyTable>(); // Массив для таблицы с частной корреляцией
             List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
             List<List<string>> metricsGrid = new List<List<string>>(); // Массив с расчитанными статистиками(не для таблиц)
 
@@ -250,16 +251,23 @@ namespace MatStat
             //////////////////////////////////----Нормальность распределения----////////////////////////////////
             LoadCharts(normedGrid); // Перенес портянку кода в отдельную функцию
             StatisticsForCharts(normedGrid);
-            //////////////////////////////////----Корреляция----////////////////////////////////////////////////
+            //////////////////////////////////----Корреляции----////////////////////////////////////////////////
             /// КОРРЕЛЯЦИОННЫЕ ПЛЕЯДЫ ДОДЕЛАТЬ
-            Correlation cor = new Correlation();
-            double[,] correlatedArr = cor.CoupleCorrelate(ToArr(normedGrid));
-            for(int  i = 0; i < correlatedArr.GetUpperBound(0) + 1; i++)
+            double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid));
+            double[][] partialCorrelatedArr = Correlation.PartialCorrelate(Correlation.ToSteppedArr(coupleCorrelatedArr));
+            for(int  i = 0; i < coupleCorrelatedArr.GetUpperBound(0) + 1; i++) // парная корреляция
             {
-                correlationSource.Add(new MyTable(CoupleCorrelation.Columns[i+1].Header.ToString(), correlatedArr[i, 0], correlatedArr[i, 1], correlatedArr[i, 2], correlatedArr[i, 3],
-                    correlatedArr[i, 4], correlatedArr[i, 5], correlatedArr[i, 6], correlatedArr[i, 7]));
+                coupleCorrelationSource.Add(new MyTable(CoupleCorrelation.Columns[i+1].Header.ToString(), coupleCorrelatedArr[i, 0], coupleCorrelatedArr[i, 1], coupleCorrelatedArr[i, 2], coupleCorrelatedArr[i, 3],
+                    coupleCorrelatedArr[i, 4], coupleCorrelatedArr[i, 5], coupleCorrelatedArr[i, 6], coupleCorrelatedArr[i, 7]));
             }
-            CoupleCorrelation.ItemsSource = correlationSource;
+            for (int i = 0; i < partialCorrelatedArr.GetUpperBound(0) + 1; i++)
+            {
+                partialCorrelationSource.Add(new MyTable(PartialCorrelation.Columns[i+1].Header.ToString(), partialCorrelatedArr[i][0], partialCorrelatedArr[i][1],
+                    partialCorrelatedArr[i][2], partialCorrelatedArr[i][3], partialCorrelatedArr[i][4], partialCorrelatedArr[i][5],
+                    partialCorrelatedArr[i][6], partialCorrelatedArr[i][7]));
+            }
+            CoupleCorrelation.ItemsSource = coupleCorrelationSource;
+            PartialCorrelation.ItemsSource = partialCorrelationSource;
         }
         #endregion
         

@@ -5,16 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="Математическая статистика" Height="770" Width="1420" Closing="AppExit" WindowStartupLocation="CenterScreen">
+        Title="Математическая статистика" Height="770" Width="1520" Closing="AppExit" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <local:CellConverter x:Key="convert"/>
     </Window.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="59*"/>
-            <ColumnDefinition Width="164*"/>
-            <ColumnDefinition Width="977*"/>
-        </Grid.ColumnDefinitions>
         <TabControl Grid.ColumnSpan="3" x:Name="Tabs">
             <TabItem x:Name="GeneralGrid">
                 <TabItem.Header>
@@ -60,7 +55,7 @@
                         <DataGrid x:Name="NormGrid" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Статистика" Binding="{Binding _model}"/>
+                                <DataGridTextColumn Header="Модель" Binding="{Binding _model}"/>
                                 <DataGridTextColumn Header="Цена($)" Binding="{Binding _price}"/>
                                 <DataGridTextColumn Header="Частота процессора(МГц)" Binding="{Binding _CPUClock}"/>
                                 <DataGridTextColumn Header="Оперативная память(ГБ)" Binding="{Binding _RAM}"/>
@@ -136,11 +131,76 @@
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
-                        <WrapPanel Orientation="Vertical"  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <WrapPanel Height="300" Orientation="Horizontal"  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible">
                             <StackPanel Orientation="Vertical">
                                 <TextBlock Text="Парный корреляционный анализ" FontSize="14" Background="White" HorizontalAlignment="Center"/>
                                 <DataGrid x:Name="CoupleCorrelation" HorizontalAlignment="Center"
+                              VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="          " Binding="{Binding _model}"/>
+                                        <DataGridTextColumn Header="Цена" Binding="{Binding _price}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _price, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _CPUClock, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _RAM, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _DriveDisk, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _GPUClock, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Diagonal, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Battery, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Background" Value="{Binding _Weight, Converter={StaticResource convert}}" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Частный корреляционный анализ" FontSize="14" Background="White" HorizontalAlignment="Center"/>
+                                <DataGrid x:Name="PartialCorrelation" HorizontalAlignment="Center"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="          " Binding="{Binding _model}"/>
