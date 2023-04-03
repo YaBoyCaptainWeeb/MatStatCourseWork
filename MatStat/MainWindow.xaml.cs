@@ -74,7 +74,9 @@ namespace MatStat
             List<MyTable> itemsSource = new List<MyTable>(); // Массив для таблиц обычных(для таблиц)
             List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
             List<MyTable> coupleCorrelationSource = new List<MyTable>(); // Массив для таблицы с парной корреляцией
+            List<MyTable> coupleCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с критерием для парной корреляции
             List<MyTable> partialCorrelationSource = new List<MyTable>(); // Массив для таблицы с частной корреляцией
+            List<MyTable> partialCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с криетрием для частной корреляции
             List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
             List<List<string>> metricsGrid = new List<List<string>>(); // Массив с расчитанными статистиками(не для таблиц)
 
@@ -253,21 +255,37 @@ namespace MatStat
             StatisticsForCharts(normedGrid);
             //////////////////////////////////----Корреляции----////////////////////////////////////////////////
             /// КОРРЕЛЯЦИОННЫЕ ПЛЕЯДЫ ДОДЕЛАТЬ
-            double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid));
-            double[][] partialCorrelatedArr = Correlation.PartialCorrelate(Correlation.ToSteppedArr(coupleCorrelatedArr));
+            double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid)); // Парная корреляция
+            double[,] coupleCriteriaStudent = Correlation.CoupleCriteriaStudent(coupleCorrelatedArr); // Критерий Стьюдента для парной корреляции
+            double[][] partialCorrelatedArr = Correlation.PartialCorrelate(Correlation.ToSteppedArr(coupleCorrelatedArr)); // Частная корреляция
+            double[][] partialCriteriaStudent = Correlation.PartialCriteriaStudent(partialCorrelatedArr); // Критерий Стьюдента для частной корреляции
             for(int  i = 0; i < coupleCorrelatedArr.GetUpperBound(0) + 1; i++) // парная корреляция
             {
                 coupleCorrelationSource.Add(new MyTable(CoupleCorrelation.Columns[i+1].Header.ToString(), coupleCorrelatedArr[i, 0], coupleCorrelatedArr[i, 1], coupleCorrelatedArr[i, 2], coupleCorrelatedArr[i, 3],
                     coupleCorrelatedArr[i, 4], coupleCorrelatedArr[i, 5], coupleCorrelatedArr[i, 6], coupleCorrelatedArr[i, 7]));
             }
-            for (int i = 0; i < partialCorrelatedArr.GetUpperBound(0) + 1; i++)
+            for (int i = 0; i < coupleCriteriaStudent.GetUpperBound(0) + 1; i++) // Критерий Стьюдента для парной корреляции
+            {
+                coupleCriteriaStudentSource.Add(new MyTable(CoupleCriteriaStudent.Columns[i + 1].Header.ToString(), coupleCriteriaStudent[i, 0], coupleCriteriaStudent[i, 1],
+                    coupleCriteriaStudent[i, 2], coupleCriteriaStudent[i, 3], coupleCriteriaStudent[i, 4], coupleCriteriaStudent[i, 5], coupleCriteriaStudent[i, 6],
+                    coupleCriteriaStudent[i, 7]));
+            }
+            for (int i = 0; i < partialCorrelatedArr.GetUpperBound(0) + 1; i++) // Частная корреляция
             {
                 partialCorrelationSource.Add(new MyTable(PartialCorrelation.Columns[i+1].Header.ToString(), partialCorrelatedArr[i][0], partialCorrelatedArr[i][1],
                     partialCorrelatedArr[i][2], partialCorrelatedArr[i][3], partialCorrelatedArr[i][4], partialCorrelatedArr[i][5],
                     partialCorrelatedArr[i][6], partialCorrelatedArr[i][7]));
             }
+            for (int i = 0; i < partialCriteriaStudent.GetUpperBound(0) + 1; i++)
+            {
+                partialCriteriaStudentSource.Add(new MyTable(PartialCriteriaStudent.Columns[i + 1].Header.ToString(), partialCriteriaStudent[i][0],
+                    partialCriteriaStudent[i][1], partialCriteriaStudent[i][2], partialCriteriaStudent[i][3], partialCriteriaStudent[i][4],
+                    partialCriteriaStudent[i][5], partialCriteriaStudent[i][6], partialCriteriaStudent[i][7]));
+            }
             CoupleCorrelation.ItemsSource = coupleCorrelationSource;
+            CoupleCriteriaStudent.ItemsSource = coupleCriteriaStudentSource;
             PartialCorrelation.ItemsSource = partialCorrelationSource;
+            PartialCriteriaStudent.ItemsSource = partialCriteriaStudentSource;
         }
         #endregion
         

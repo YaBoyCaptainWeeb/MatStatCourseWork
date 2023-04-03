@@ -43,6 +43,21 @@ namespace MatStat
             return ToArr(RxyArr);
         }
 
+        public static double[,] CoupleCriteriaStudent(double[,] arr)
+        {
+            double[,] res = new double[arr.GetUpperBound(0) + 1, arr.GetUpperBound(1) + 1];
+            int n = arr.GetUpperBound(0) + 1;
+            for (int i = 0; i != arr.GetUpperBound(0)+1; i++)
+            {
+                for (int j = 0; j != arr.GetUpperBound (1) + 1; j++)
+                {
+                    double t = Math.Sqrt((arr[i, j] * arr[i, j] * (n - 2)) / (1 - arr[i, j] * arr[i, j]));
+                    res[i,j] = Math.Round(t,4);
+                }
+            }
+            return res;
+        }
+
         public static double[][] PartialCorrelate(double[][] coefficientsCorrelations)
         {
             double[][] privateCorrelationsCoefficients = new double[8][];
@@ -65,6 +80,51 @@ namespace MatStat
                 privateCorrelationsCoefficients[i] = temp;
             }
             return privateCorrelationsCoefficients;
+        }
+        /*
+        private double[][] GetCriterionStudientForPrivate(double[][] privateCoefficientsCorrelations)
+        {
+            var size = _columns - 1;
+            var criterionStudient = new double[size][];
+
+            for (int i = 0; i < size; i++)
+            {
+                var temp = new double[size];
+                for (int j = 0; j < size; j++)
+                {
+                    if (i == j)
+                        temp[j] = double.PositiveInfinity;
+                    else
+                    {
+                        var r = privateCoefficientsCorrelations[i][j];
+                        temp[j] = Math.Abs(r) * Math.Sqrt((size - 3) / (1 - r * r));
+                        criterionStudient[i] = temp;
+                    }
+                }
+            }
+            return criterionStudient;
+        }
+        */
+        public static double[][] PartialCriteriaStudent(double[][] arr)
+        {
+            int n = arr.GetUpperBound(0)+1;
+            double[][] res = new double[n][];
+            for (int i = 0; i != n; i++)
+            {
+                double[] temp = new double[n];
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == j)
+                        temp[j] = double.PositiveInfinity;
+                    else
+                    {
+                        double r = arr[i][j];
+                        temp[j] = Math.Round(Math.Abs(r) * Math.Sqrt((n - 3) / (1 - r * r)),4);
+                        res[i] = temp;
+                    }
+                }
+            }
+            return res;
         }
         private static double GetAlgebraicСomplement(double[][] matrix, int row, int col)
         {
