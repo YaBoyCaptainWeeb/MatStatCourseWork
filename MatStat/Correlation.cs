@@ -81,30 +81,6 @@ namespace MatStat
             }
             return privateCorrelationsCoefficients;
         }
-        /*
-        private double[][] GetCriterionStudientForPrivate(double[][] privateCoefficientsCorrelations)
-        {
-            var size = _columns - 1;
-            var criterionStudient = new double[size][];
-
-            for (int i = 0; i < size; i++)
-            {
-                var temp = new double[size];
-                for (int j = 0; j < size; j++)
-                {
-                    if (i == j)
-                        temp[j] = double.PositiveInfinity;
-                    else
-                    {
-                        var r = privateCoefficientsCorrelations[i][j];
-                        temp[j] = Math.Abs(r) * Math.Sqrt((size - 3) / (1 - r * r));
-                        criterionStudient[i] = temp;
-                    }
-                }
-            }
-            return criterionStudient;
-        }
-        */
         public static double[][] PartialCriteriaStudent(double[][] arr)
         {
             int n = arr.GetUpperBound(0)+1;
@@ -222,5 +198,6 @@ namespace MatStat
             }
             return arr;
         }
+        
     }
 }
