@@ -115,6 +115,7 @@
     </Compile>
     <Compile Include="CellConverter.cs" />
     <Compile Include="Correlation.cs" />
+    <Compile Include="DataGridHelperFunctions.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

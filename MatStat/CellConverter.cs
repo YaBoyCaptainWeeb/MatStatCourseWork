@@ -17,25 +17,28 @@ namespace MatStat
             double val = (double)value;
             if (val <= 1.0 && val >= 0.7)
             {
-                return "LimeGreen";
+                return "LimeGreen"; // Сильная связь
             }
             else if (val <= 0.6999 && val >= 0.5)
             {
-                return "Yellow";
+                return "Yellow"; // Средняя связь
             }
             else if (val <= 0.4999 && val >= 0.2)
             {
-                return "Gold";
+                return "Gold"; // Слабая связь
             }
             else if (val <= 0.1999 && val >= 0.0001)
             {
-                return "Orange";
+                return "Gold"; 
             }
             else if (val <= 0.0001 && val >= -0.4999)
             {
-                return "Red";
+                return "Red"; // Обратная связь
             }
             else if (val <= -0.5 && val >= -1.0)
+            {
+                return "Red";
+            } else if (val == 0)
             {
                 return "Red";
             }

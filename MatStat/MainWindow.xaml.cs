@@ -292,17 +292,21 @@ namespace MatStat
             PartialCorrelation.ItemsSource = partialCorrelationSource;
             PartialCriteriaStudent.ItemsSource = partialCriteriaStudentSource;
 
-            DrawDiagramm(coupleCorrelatedArr, coupleCriteriaStudent); // Диаграмма для парных корреляций
-            DrawDiagramm1(partialCorrelatedArr, partialCriteriaStudent); // 
+            DrawDiagramm(coupleCorrelatedArr, coupleCriteriaStudent, Canv); // Диаграмма для парных корреляций
+            DrawDiagramm(ToArr(partialCorrelatedArr), ToArr(partialCriteriaStudent), Canv1); // Диаграмма для частных корреляций
+            DrawDiagramm(coupleCorrelatedArr,coupleCriteriaStudent, Canv2); // Поправить расположение этой диаграммы и доделать рассчеты
+            DrawDiagramm(coupleCorrelatedArr, coupleCriteriaStudent, Canv3);
+
+
+            
         }
         #endregion
         
 
-
         #region Функции
-        private void DrawDiagramm(double[,] CorrCoef, double[,] CriteriaCoef)
+        private void DrawDiagramm(double[,] CorrCoef, double[,] CriteriaCoef, Canvas canv)
         {
-            Canv.Children.Clear();
+            canv.Children.Clear();
             int size = 400;
             System.Drawing.Point center = new System.Drawing.Point(size/2,size/2);
             Ellipse ellipse = new Ellipse();
@@ -310,7 +314,7 @@ namespace MatStat
             ellipse.Height = size/2;
             ellipse.StrokeThickness = 2;
             ellipse.Stroke = System.Windows.Media.Brushes.Black;
-            Canv.Children.Add(ellipse);
+            canv.Children.Add(ellipse);
             double radius = ellipse.Height / 2;
             int step = 100;
             Canvas.SetTop(ellipse, center.Y - radius - step);
@@ -326,7 +330,7 @@ namespace MatStat
                 pointView.Width = 2;
                 pointView.Height = 2;
                 pointView.Fill = System.Windows.Media.Brushes.Black;
-                Canv.Children.Add(pointView);
+                canv.Children.Add(pointView);
                 double radiusPoint = pointView.Height / 2;
                 Canvas.SetTop(pointView,point.Y - radiusPoint - step);
                 Canvas.SetLeft(pointView,point.X - radiusPoint - step);
@@ -334,7 +338,7 @@ namespace MatStat
 
                 TextBlock label = new TextBlock();
                 label.Text = CoupleCorrelation.Columns[i+1].Header.ToString();
-                Canv.Children.Add(label);
+                canv.Children.Add(label);
 
                 System.Windows.Point labelPos = new System.Windows.Point(center.X - Math.Cos(angle) * (radius + 10), center.Y - Math.Sin(angle) * (radius + 10));
                 Canvas.SetTop(label, labelPos.Y - 7 - step);
@@ -380,97 +384,10 @@ namespace MatStat
                         line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0,0,0));
                     }                    
                     line.StrokeThickness = CorrCoef[i, j - 1] < CriteriaCoef[i, j - 1] ? 2 : 1;
-                    Canv.Children.Add(line);
+                    canv.Children.Add(line);
                 }
             }
         }
-        private void DrawDiagramm1(double[][] CorrCoef, double[][] CriteriaCoef)
-        {
-            Canv1.Children.Clear();
-            int size = 400;
-            System.Drawing.Point center = new System.Drawing.Point(size / 2, size / 2);
-            Ellipse ellipse = new Ellipse();
-            ellipse.Width = size / 2;
-            ellipse.Height = size / 2;
-            ellipse.StrokeThickness = 2;
-            ellipse.Stroke = System.Windows.Media.Brushes.Black;
-            Canv1.Children.Add(ellipse);
-            double radius = ellipse.Height / 2;
-            int step = 100;
-            Canvas.SetTop(ellipse, center.Y - radius - step);
-            Canvas.SetLeft(ellipse, center.X - radius - step);
-
-            int n = CorrCoef.GetUpperBound(0) + 1;
-            List<System.Windows.Point> points = new List<System.Windows.Point>();
-            for (int i = 0; i < n; i++)
-            {
-                double angle = i * Math.PI * 2 / n;
-                System.Windows.Point point = new System.Windows.Point(center.X - Math.Cos(angle) * radius, center.Y - Math.Sin(angle) * radius);
-                Ellipse pointView = new Ellipse();
-                pointView.Width = 2;
-                pointView.Height = 2;
-                pointView.Fill = System.Windows.Media.Brushes.Black;
-                Canv1.Children.Add(pointView);
-                double radiusPoint = pointView.Height / 2;
-                Canvas.SetTop(pointView, point.Y - radiusPoint - step);
-                Canvas.SetLeft(pointView, point.X - radiusPoint - step);
-                points.Add(new System.Windows.Point(point.X - radiusPoint - step, point.Y - radiusPoint - step));
-
-                TextBlock label = new TextBlock();
-                label.Text = CoupleCorrelation.Columns[i + 1].Header.ToString();
-                Canv1.Children.Add(label);
-
-                System.Windows.Point labelPos = new System.Windows.Point(center.X - Math.Cos(angle) * (radius + 10), center.Y - Math.Sin(angle) * (radius + 10));
-                Canvas.SetTop(label, labelPos.Y - 7 - step);
-                Canvas.SetLeft(label, labelPos.X - 5 - step);
-            }
-
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = i + 1; j < n; j++)
-                {
-                    double coeff = 255 - Math.Abs(CorrCoef[i][j]) * 255;
-                    Line line = new Line();
-                    line.X1 = points[i].X;
-                    line.Y1 = points[i].Y;
-                    line.X2 = points[j].X;
-                    line.Y2 = points[j].Y;
-                    var val = CorrCoef[i][j - 1];
-                    if (val <= 1.0 && val >= 0.7)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 205, 50));
-                    }
-                    else if (val <= 0.6999 && val >= 0.5)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 0));
-                    }
-                    else if (val <= 0.4999 && val >= 0.2)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 215, 0));
-                    }
-                    else if (val <= 0.1999 && val >= 0.0001)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 165, 0));
-                    }
-                    else if (val <= 0.0001 && val >= -0.4999)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    }
-                    else if (val <= -0.5 && val >= -1.0)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    }
-                    else
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
-                    }
-                    line.StrokeThickness = CorrCoef[i][j - 1] < CriteriaCoef[i][j - 1] ? 2 : 1;
-                    Canv1.Children.Add(line);
-                }
-            }
-        }
-
-
 
         private void ChooseFile(object sender, RoutedEventArgs e)
         {
@@ -610,6 +527,18 @@ namespace MatStat
                 }
             }
             return arr;
+        }
+        private double[,] ToArr(double[][] arr) // Парсим ступенчатый массив в double (передавать только симметричные массивы)
+        {
+            double[,] res = new double[arr.GetUpperBound(0), arr[0].GetUpperBound(0)];
+            for (int i = 0; i != arr.GetUpperBound(0) - 1; i++)
+            {
+                for (int j = 0; j != arr[0].GetUpperBound(0) - 1; j++)
+                {
+                    res[i, j] = arr[i][j];
+                }
+            }
+            return res;
         }
         private double[] GetArray(double[,] list, int count) // Вытянуть столбце из double[,] массива
         {
