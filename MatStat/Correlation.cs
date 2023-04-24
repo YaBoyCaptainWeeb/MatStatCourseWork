@@ -11,7 +11,6 @@ namespace MatStat
 {
     static internal class Correlation
     {
-       // public MainWindow Main { get; set; }
 
         public static double[,] CoupleCorrelate(double[,] arr) // вычисление парных коэффициентов корреляций
         {
@@ -56,6 +55,19 @@ namespace MatStat
                 }
             }
             return res;
+        }
+        public static double[,] SignificanceLevel(double[,] arr, double currentConstant)
+        {
+            double[,] res = new double[arr.GetUpperBound(0)+1,arr.GetUpperBound (1) + 1];
+            for (int i = 0; i != arr.GetUpperBound(0) + 1; i++)
+            {
+                for (int j = 0; j != arr.GetUpperBound (1) +1; j++)
+                {
+                    res[i, j] = arr[i,j] > currentConstant ? 1 : 0;
+                }
+            }
+            return res;
+            
         }
 
         public static double[][] PartialCorrelate(double[][] coefficientsCorrelations)

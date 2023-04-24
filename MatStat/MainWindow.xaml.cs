@@ -25,6 +25,7 @@ using ScottPlot.Statistics;
 using System.Drawing;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace MatStat
 {
@@ -32,6 +33,7 @@ namespace MatStat
     {
         public static List<List<string>> grid = new List<List<string>>(); // Исходные данные
         List<MyTable> itemsSource = new List<MyTable>(); // Данные для таблиц
+        public static List<List<double>> StudentDistributionList = new List<List<double>>(); // Распределение Стьюдента
 
         public MainWindow()
         {            
@@ -42,7 +44,9 @@ namespace MatStat
         {
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 ExcelPackage excelPackage = new ExcelPackage(filepath);
-                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0];
+                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0]; // Исходные данные
+                ExcelWorksheet excelWorksheet1 = excelPackage.Workbook.Worksheets[2]; // Распределение Стьюдента
+
 
                 itemsSource.Clear();
                 for (int i = 2; true; i++) // копируем таблицу из Excel для внутренней работы программы
@@ -57,6 +61,33 @@ namespace MatStat
                     grid.Add(row);
                 }
 
+            if (grid.Count > 8)
+            {
+                string[,] buff = new string[30,7];
+                for (int i = 4; true; i++) // копируем таблицу из Excel для распределения Стьюдента В ПРОЦЕССЕ
+                {
+                    if (excelWorksheet1.Cells[i, 3].Value == null) break;
+                    List<string> row = new List<string>();
+                    for (int j = 3; true; j++)
+                    {
+                        if (excelWorksheet1.Cells[i, j].Value == null) break;
+                        row.Add(excelWorksheet1.Cells[i, j].Value.ToString());
+                    }
+                    for (int k = 0; k != row.Count; k++)
+                    {
+                        buff[i-4,k] = row[k];
+                    }
+                }
+
+                for (int i = 0; i != buff.GetUpperBound(0)+1; i++) // Копируем значения из буферного массива в List
+                {
+                    List<double> row = new List<double>();
+                    for (int j = 0; j != buff.GetUpperBound(1)+1; j++)
+                    {
+                        row.Add(Convert.ToDouble(buff[i, j]));
+                    }
+                    StudentDistributionList.Add(row);
+                }
                 foreach (List<string> row in grid) // делаем копию в itemSource для загрузки данных в нужном формате для DataGrid
                 {
                     itemsSource.Add(new MyTable(row[0], Convert.ToDouble(row[1]), Convert.ToDouble(row[2]), Convert.ToDouble(row[3]),
@@ -64,9 +95,12 @@ namespace MatStat
                 }
                 dataGrid.ItemsSource = itemsSource;
                 Load1();
-            
-
-            
+            } else
+            {
+                MessageBox.Show("Количество наблюдений меньше 8, корректный рассчет стастиски будет маловероятным, добавьте больше наблюдений.", "Предупреждение"
+                    , MessageBoxButton.OK, MessageBoxImage.Hand);
+                Application.Current.Shutdown();
+            }
         }
         #region Нормированные таблицы
         private void Load1() // Все расчеты
@@ -75,8 +109,10 @@ namespace MatStat
             List<MyTable> metricsSource = new List<MyTable>(); // Массив для таблиц со статистиками(для таблиц)
             List<MyTable> coupleCorrelationSource = new List<MyTable>(); // Массив для таблицы с парной корреляцией
             List<MyTable> coupleCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с критерием для парной корреляции
+            List<MyTable> coupleSignificanceSource = new List<MyTable> (); // Массив для таблицы с коэфф.значимости для парной корреляции
             List<MyTable> partialCorrelationSource = new List<MyTable>(); // Массив для таблицы с частной корреляцией
             List<MyTable> partialCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с криетрием для частной корреляции
+            List<MyTable> partialSignificanceSource = new List<MyTable>(); // Массив для таблицы с коэфф.значимости для частной корреляции
             List<List<string>> normedGrid = new List<List<string>>(); // Массив с нормированным данными(не для таблиц)
             List<List<string>> metricsGrid = new List<List<string>>(); // Массив с расчитанными статистиками(не для таблиц)
 
@@ -257,8 +293,12 @@ namespace MatStat
             /// КОРРЕЛЯЦИОННЫЕ ПЛЕЯДЫ ДОДЕЛАТЬ
             double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid)); // Парная корреляция
             double[,] coupleCriteriaStudent = Correlation.CoupleCriteriaStudent(coupleCorrelatedArr); // Критерий Стьюдента для парной корреляции
+            double[,] coupleSignificanceLevel = Correlation.SignificanceLevel(coupleCriteriaStudent, GetCurrentConstant(StudentDistributionList)); // Коэффициент значимости для парной корреляции
+            CurrentConstant.Text = GetCurrentConstant(StudentDistributionList).ToString();
             double[][] partialCorrelatedArr = Correlation.PartialCorrelate(Correlation.ToSteppedArr(coupleCorrelatedArr)); // Частная корреляция
             double[][] partialCriteriaStudent = Correlation.PartialCriteriaStudent(partialCorrelatedArr); // Критерий Стьюдента для частной корреляции
+            double[,] partialSignificanceLevel = Correlation.SignificanceLevel(ToArr(partialCriteriaStudent), GetCurrentConstant(StudentDistributionList)); // Коэффициент значимости для частной корреляции
+            
 
             for(int  i = 0; i < coupleCorrelatedArr.GetUpperBound(0) + 1; i++) // парная корреляция
             {
@@ -271,6 +311,13 @@ namespace MatStat
                 coupleCriteriaStudentSource.Add(new MyTable(CoupleCriteriaStudent.Columns[i + 1].Header.ToString(), coupleCriteriaStudent[i, 0], coupleCriteriaStudent[i, 1],
                     coupleCriteriaStudent[i, 2], coupleCriteriaStudent[i, 3], coupleCriteriaStudent[i, 4], coupleCriteriaStudent[i, 5], coupleCriteriaStudent[i, 6],
                     coupleCriteriaStudent[i, 7]));
+            }
+
+            for (int i = 0; i < coupleSignificanceLevel.GetUpperBound(0) + 1; i++) // Коэфф.значимости для парной корреляции
+            {
+                coupleSignificanceSource.Add(new MyTable(CoupleSignificance.Columns[i + 1].Header.ToString(), coupleSignificanceLevel[i, 0],
+                    coupleSignificanceLevel[i, 1], coupleSignificanceLevel[i, 2], coupleSignificanceLevel[i, 3], coupleSignificanceLevel[i, 4],
+                    coupleSignificanceLevel[i, 5], coupleSignificanceLevel[i, 6], coupleSignificanceLevel[i, 7]));
             }
 
             for (int i = 0; i < partialCorrelatedArr.GetUpperBound(0) + 1; i++) // Частная корреляция
@@ -287,24 +334,48 @@ namespace MatStat
                     partialCriteriaStudent[i][5], partialCriteriaStudent[i][6], partialCriteriaStudent[i][7]));
             }
 
+            for (int i = 0; i < partialSignificanceLevel.GetUpperBound(0) + 1; i++)
+            {
+                partialSignificanceSource.Add(new MyTable(PartialSignificance.Columns[i+1].Header.ToString(), partialSignificanceLevel[i,0], partialSignificanceLevel[i,1],
+                    partialSignificanceLevel[i,2], partialSignificanceLevel[i,3], partialSignificanceLevel[i, 4], partialSignificanceLevel[i,5],
+                    partialSignificanceLevel[i, 6], partialSignificanceLevel[i,7]));
+            }
+
             CoupleCorrelation.ItemsSource = coupleCorrelationSource;
             CoupleCriteriaStudent.ItemsSource = coupleCriteriaStudentSource;
+            CoupleSignificance.ItemsSource = coupleSignificanceSource;
             PartialCorrelation.ItemsSource = partialCorrelationSource;
             PartialCriteriaStudent.ItemsSource = partialCriteriaStudentSource;
+            PartialSignificance.ItemsSource = partialSignificanceSource;
 
-            DrawDiagramm(coupleCorrelatedArr, coupleCriteriaStudent, Canv); // Диаграмма для парных корреляций
-            DrawDiagramm(ToArr(partialCorrelatedArr), ToArr(partialCriteriaStudent), Canv1); // Диаграмма для частных корреляций
-            DrawDiagramm(coupleCorrelatedArr,coupleCriteriaStudent, Canv2); // Поправить расположение этой диаграммы и доделать рассчеты
-            DrawDiagramm(coupleCorrelatedArr, coupleCriteriaStudent, Canv3);
-
-
+            DrawDiagramm(coupleCorrelatedArr, Canv,1); // Диаграмма для парных корреляций
+            DrawDiagramm(ToArr(partialCorrelatedArr), Canv1,1); // Диаграмма для частных корреляций
             
+            DrawDiagramm(coupleCorrelatedArr, Canv2,2); // Только сильная связь у парной корреляции
+            DrawDiagramm(ToArr(partialCorrelatedArr), Canv3,2); // Только сильная связь у частной корреляции
+
+
+
         }
         #endregion
         
 
         #region Функции
-        private void DrawDiagramm(double[,] CorrCoef, double[,] CriteriaCoef, Canvas canv)
+        private void Selected(object sender, SelectionChangedEventArgs e)
+        {
+            //GetCurrentConstant(StudentDistributionList);
+            //ReCalculate(null,null);
+        }
+        private double GetCurrentConstant(List<List<double>> arr)
+        {
+            return arr[grid.Count-1][Cmbx.SelectedIndex];
+        }
+        private void OpenStudentTable(object sender, RoutedEventArgs e)
+        {
+            StudentDistribution win = new StudentDistribution(StudentDistributionList);
+            win.Show();
+        }
+        private void DrawDiagramm(double[,] CorrCoef,Canvas canv, int mode)
         {
             canv.Children.Clear();
             int size = 400;
@@ -341,8 +412,8 @@ namespace MatStat
                 canv.Children.Add(label);
 
                 System.Windows.Point labelPos = new System.Windows.Point(center.X - Math.Cos(angle) * (radius + 10), center.Y - Math.Sin(angle) * (radius + 10));
-                Canvas.SetTop(label, labelPos.Y - 7 - step);
-                Canvas.SetLeft(label, labelPos.X - 5 - step);
+                Canvas.SetTop(label, labelPos.Y - 10 - step);
+                Canvas.SetLeft(label, labelPos.X - 12 - step);
             }
 
             for (int i = 0; i < n; i++)
@@ -356,34 +427,47 @@ namespace MatStat
                     line.X2 = points[j].X;
                     line.Y2 = points[j].Y;
                     var val = CorrCoef[i, j-1];
-                    if (val <= 1.0 && val >= 0.7)
+                    switch (mode)
                     {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50,205,50));
+                        case 1:
+                            if (val <= 1.0 && val >= 0.7)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 205, 50));
+                            }
+                            else if (val <= 0.6999 && val >= 0.5)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 0));
+                            }
+                            else if (val <= 0.4999 && val >= 0.2)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 215, 0));
+                            }
+                            else if (val <= 0.1999 && val >= 0.0001)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 165, 0));
+                            }
+                            else if (val <= 0.0001 && val >= -0.4999)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                            }
+                            else if (val <= -0.5 && val >= -1.0)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                            }
+                            else
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
+                            }
+                            line.StrokeThickness = 2;
+                            break;
+                        case 2:
+                            if (val <= 1.0 && val >= 0.7)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 205, 50));
+                                line.StrokeThickness = 2.7;
+                            }
+                            break;
                     }
-                    else if (val <= 0.6999 && val >= 0.5)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 0));
-                    }
-                    else if (val <= 0.4999 && val >= 0.2)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 215, 0));
-                    }
-                    else if (val <= 0.1999 && val >= 0.0001)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 165, 0));
-                    }
-                    else if (val <= 0.0001 && val >= -0.4999)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    }
-                    else if (val <= -0.5 && val >= -1.0)
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                    } else
-                    {
-                        line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0,0,0));
-                    }                    
-                    line.StrokeThickness = CorrCoef[i, j - 1] < CriteriaCoef[i, j - 1] ? 2 : 1;
                     canv.Children.Add(line);
                 }
             }
@@ -399,6 +483,9 @@ namespace MatStat
                     SaveBtn.IsEnabled = true;
                     RecalcBtn.IsEnabled = true;
                     OpenBtn.IsEnabled = false;
+                    StatisticsTab.IsEnabled = true;
+                    PierceTab.IsEnabled = true;
+                    CorrelationTab.IsEnabled = true;
                     Load(dlg.FileName);
                 }
         }
@@ -449,6 +536,7 @@ namespace MatStat
             {
                 process.Kill();
             }
+            Application.Current.Shutdown();
         }
 
         private void ReCalculate(object sender, RoutedEventArgs e)
@@ -479,7 +567,10 @@ namespace MatStat
                 Ch6.Plot.Clear();
                 Ch7.Plot.Clear();
                 Ch8.Plot.Clear();
-
+                Canv.Children.Clear();
+                Canv1.Children.Clear();
+                Canv2.Children.Clear();
+                Canv3.Children.Clear();
                 Load1();
             } else
             {
@@ -530,10 +621,10 @@ namespace MatStat
         }
         private double[,] ToArr(double[][] arr) // Парсим ступенчатый массив в double (передавать только симметричные массивы)
         {
-            double[,] res = new double[arr.GetUpperBound(0), arr[0].GetUpperBound(0)];
-            for (int i = 0; i != arr.GetUpperBound(0) - 1; i++)
+            double[,] res = new double[arr.GetUpperBound(0) + 1, arr[0].GetUpperBound(0) + 1];
+            for (int i = 0; i != arr.GetUpperBound(0) + 1; i++)
             {
-                for (int j = 0; j != arr[0].GetUpperBound(0) - 1; j++)
+                for (int j = 0; j != arr[0].GetUpperBound(0) + 1; j++)
                 {
                     res[i, j] = arr[i][j];
                 }
@@ -818,5 +909,6 @@ namespace MatStat
             Ch8.Refresh();
         }
         #endregion
+
     }
 }

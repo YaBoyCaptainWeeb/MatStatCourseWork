@@ -34,29 +34,5 @@ namespace MatStat
         {
 
         }
-        public double GetParam(int n)
-        {
-            switch (n)
-            {
-                case 0:
-                    return this._price;
-                case 1:
-                    return this._CPUClock;
-                case 2:
-                    return this._RAM;
-                case 3:
-                    return this._DriveDisk;
-                case 4:
-                    return this._GPUClock;
-                case 5:
-                    return this._Diagonal;
-                case 6:
-                    return this._Battery;
-                case 7:
-                    return this._Weight;
-                default:
-                    return 0;
-            }
-        }
     }
 }
