@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace MatStat
 {
@@ -66,8 +68,104 @@ namespace MatStat
                     res[i, j] = arr[i,j] > currentConstant ? 1 : 0;
                 }
             }
-            return res;
-            
+            return res;  
+        }
+        public static void DrawDiagramm(double[,] CorrCoef, Canvas canv, int mode)
+        {
+            canv.Children.Clear();
+            int size = 400;
+            System.Drawing.Point center = new System.Drawing.Point(size / 2, size / 2);
+            Ellipse ellipse = new Ellipse();
+            ellipse.Width = size / 2;
+            ellipse.Height = size / 2;
+            ellipse.StrokeThickness = 2;
+            ellipse.Stroke = System.Windows.Media.Brushes.Black;
+            canv.Children.Add(ellipse);
+            double radius = ellipse.Height / 2;
+            int step = 100;
+            Canvas.SetTop(ellipse, center.Y - radius - step);
+            Canvas.SetLeft(ellipse, center.X - radius - step);
+
+            int n = CorrCoef.GetUpperBound(0) + 1;
+            List<System.Windows.Point> points = new List<System.Windows.Point>();
+            for (int i = 0; i < n; i++)
+            {
+                double angle = i * Math.PI * 2 / n;
+                System.Windows.Point point = new System.Windows.Point(center.X - Math.Cos(angle) * radius, center.Y - Math.Sin(angle) * radius);
+                Ellipse pointView = new Ellipse();
+                pointView.Width = 2;
+                pointView.Height = 2;
+                pointView.Fill = System.Windows.Media.Brushes.Black;
+                canv.Children.Add(pointView);
+                double radiusPoint = pointView.Height / 2;
+                Canvas.SetTop(pointView, point.Y - radiusPoint - step);
+                Canvas.SetLeft(pointView, point.X - radiusPoint - step);
+                points.Add(new System.Windows.Point(point.X - radiusPoint - step, point.Y - radiusPoint - step));
+
+                TextBlock label = new TextBlock();
+                label.Text = MainWindow.mainWindow.CoupleCorrelation.Columns[i + 1].Header.ToString();
+                canv.Children.Add(label);
+
+                System.Windows.Point labelPos = new System.Windows.Point(center.X - Math.Cos(angle) * (radius + 10), center.Y - Math.Sin(angle) * (radius + 10));
+                Canvas.SetTop(label, labelPos.Y - 10 - step);
+                Canvas.SetLeft(label, labelPos.X - 12 - step);
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i + 1; j < n; j++)
+                {
+                    double coeff = 255 - Math.Abs(CorrCoef[i, j]) * 255;
+                    Line line = new Line();
+                    line.X1 = points[i].X;
+                    line.Y1 = points[i].Y;
+                    line.X2 = points[j].X;
+                    line.Y2 = points[j].Y;
+                    var val = CorrCoef[i, j - 1];
+                    switch (mode)
+                    {
+                        case 1:
+                            if (val <= 1.0 && val >= 0.7)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 205, 50));
+                            }
+                            else if (val <= 0.6999 && val >= 0.5)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 0));
+                            }
+                            else if (val <= 0.4999 && val >= 0.2)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 215, 0));
+                            }
+                            else if (val <= 0.1999 && val >= 0.0001)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 165, 0));
+                            }
+                            else if (val <= 0.0001 && val >= -0.4999)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                            }
+                            else if (val <= -0.5 && val >= -1.0)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
+                            }
+                            else
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 0, 0));
+                            }
+                            line.StrokeThickness = 2;
+                            break;
+                        case 2:
+                            if (val <= 1.0 && val >= 0.7)
+                            {
+                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 205, 50));
+                                line.StrokeThickness = 2.7;
+                            }
+                            break;
+                    }
+                    canv.Children.Add(line);
+                }
+            }
         }
 
         public static double[][] PartialCorrelate(double[][] coefficientsCorrelations)

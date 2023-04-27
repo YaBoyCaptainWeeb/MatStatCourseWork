@@ -14,35 +14,43 @@ namespace MatStat
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            double val = (double)value;
-            if (val <= 1.0 && val >= 0.7)
+            if (value != null)
             {
-                return "LimeGreen"; // Сильная связь
+                double val = System.Convert.ToDouble(value);
+                if (val <= 1.0 && val >= 0.7)
+                {
+                    return "LimeGreen"; // Сильная связь
+                }
+                else if (val <= 0.6999 && val >= 0.5)
+                {
+                    return "Yellow"; // Средняя связь
+                }
+                else if (val <= 0.4999 && val >= 0.2)
+                {
+                    return "Gold"; // Слабая связь
+                }
+                else if (val <= 0.1999 && val >= 0.0001)
+                {
+                    return "Gold";
+                }
+                else if (val <= 0.0001 && val >= -0.4999)
+                {
+                    return "Red"; // Обратная связь
+                }
+                else if (val <= -0.5 && val >= -1.0)
+                {
+                    return "Red";
+                }
+                else if (val == 0)
+                {
+                    return "Red";
+                }
+                return "White";
+            } else
+            {
+                return "White";
             }
-            else if (val <= 0.6999 && val >= 0.5)
-            {
-                return "Yellow"; // Средняя связь
-            }
-            else if (val <= 0.4999 && val >= 0.2)
-            {
-                return "Gold"; // Слабая связь
-            }
-            else if (val <= 0.1999 && val >= 0.0001)
-            {
-                return "Gold"; 
-            }
-            else if (val <= 0.0001 && val >= -0.4999)
-            {
-                return "Red"; // Обратная связь
-            }
-            else if (val <= -0.5 && val >= -1.0)
-            {
-                return "Red";
-            } else if (val == 0)
-            {
-                return "Red";
-            }
-            return "White";
+
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -105,9 +105,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DescripiveStatistics.cs" />
+    <Compile Include="Pirson.cs" />
     <Compile Include="StudentDistribution.xaml.cs">
       <DependentUpon>StudentDistribution.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TriangleTable.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

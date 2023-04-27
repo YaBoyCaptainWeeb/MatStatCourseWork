@@ -442,7 +442,8 @@
                             <Menu ItemContainerStyle="{DynamicResource MenuItemContainerStyle1}">
                                 <MenuItem Header="Открыть таблицу распределения Стьюдента" FontSize="14" Click="OpenStudentTable"/>
                                 <TextBlock Text="Текущий уровень значимости α =" FontSize="14" IsEnabled="False"/>
-                                <ComboBox x:Name="Cmbx" Width="50" Background="White" SelectedIndex="3" SelectionChanged="Selected" Margin="-10 0 0 0">
+                                <ComboBox x:Name="Cmbx" Width="55" Background="White" SelectedIndex="3" DropDownClosed="Selected"
+                                          Margin="-10 0 0 0">
                                      <ComboBoxItem Content="0,4" HorizontalAlignment="Center"/>
                                      <ComboBoxItem Content="0,25" HorizontalAlignment="Center"/>
                                      <ComboBoxItem Content="0,1" HorizontalAlignment="Center"/>
