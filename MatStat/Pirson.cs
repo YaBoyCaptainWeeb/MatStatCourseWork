@@ -1,6 +1,9 @@
 ﻿using MathNet.Numerics.Distributions;
+using ScottPlot;
+using ScottPlot.Styles;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -98,7 +101,8 @@ namespace MatStat
         }
         public static void LoadCharts(List<List<string>> list) // отрисовка графиков
         {
-            double dovInt = 12.6;
+            double dovInt = 12.6; // уровень доверия 0.05
+            double percent = 0.7; // масштабирование для гистограмм на графике
             double[,] arr = mainWindow.ToArr(list); // преобразуем текстовую таблицу в таблицу из double значений 
             double[] dataX = new double[5];
             double[] dataY = new double[5];
@@ -112,6 +116,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch1.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch1.Plot.AddBar(dataY, dataX,color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch1.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch1.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch1.Plot.Title("Цена");
             mainWindow.Ch1.Refresh();
@@ -129,6 +135,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch2.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch2.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch2.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch2.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch2.Plot.Title("Частота процессора");
             mainWindow.Ch2.Refresh();
@@ -146,6 +154,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch3.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch3.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch3.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch3.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch3.Plot.Title("Оперативная память");
             mainWindow.Ch3.Refresh();
@@ -163,6 +173,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch4.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch4.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch4.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch4.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch4.Plot.Title("Жесткий диск/накопитель");
             mainWindow.Ch4.Refresh();
@@ -180,6 +192,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch5.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch5.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch5.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch5.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch5.Plot.Title("Частота графического процессора");
             mainWindow.Ch5.Refresh();
@@ -197,6 +211,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch6.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch6.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch6.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch6.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch6.Plot.Title("Диагональ экрана");
             mainWindow.Ch6.Refresh();
@@ -214,6 +230,8 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch7.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch7.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch7.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch7.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch7.Plot.Title("Аккумулятор");
             mainWindow.Ch7.Refresh();
@@ -231,9 +249,12 @@ namespace MatStat
                 dataY[i] = Math.Round(coor[i, 1], 2);
             }
             mainWindow.Ch8.Plot.AddAnnotation($"Нормальность {normal}\nКритерий Пирсона: {pirson}\nКритич.: {critical}", -10, 10);
+            mainWindow.Ch8.Plot.AddBar(dataY, dataX, color: Color.BlueViolet).BarWidth = (dataX[1] - dataX[0]) * percent;
+            mainWindow.Ch8.Plot.SetAxisLimits(yMin: 0);
             mainWindow.Ch8.Plot.AddScatter(dataX, dataY);
             mainWindow.Ch8.Plot.Title("Вес");
             mainWindow.Ch8.Refresh();
+
         }
 
         internal static double[] GetArray(double[,] list, int count) // Вытянуть столбце из double[,] массива

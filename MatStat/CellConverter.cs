@@ -25,13 +25,9 @@ namespace MatStat
                 {
                     return "Yellow"; // Средняя связь
                 }
-                else if (val <= 0.4999 && val >= 0.2)
+                else if (val <= 0.4999 && val >= 0.0001)
                 {
                     return "Gold"; // Слабая связь
-                }
-                else if (val <= 0.1999 && val >= 0.0001)
-                {
-                    return "Gold";
                 }
                 else if (val <= 0.0001 && val >= -0.4999)
                 {

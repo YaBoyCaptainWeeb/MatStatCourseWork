@@ -151,7 +151,7 @@ namespace MatStat
             metricsSource = MakeTableView(metricsGrid);
             Metrics.ItemsSource = metricsSource;
             //////////////////////////////////----Нормальность распределения----////////////////////////////////
-            LoadCharts(normedGrid); // Перенес портянку кода в отдельную функцию
+            LoadCharts(normedGrid);
             StatisticsForCharts(normedGrid);
             //////////////////////////////////----Корреляции----////////////////////////////////////////////////
             LoadCorrelations(normedGrid);
@@ -195,8 +195,7 @@ namespace MatStat
             Correlation.DrawDiagramm(ToArr(partialCorrelatedArr), Canv3, 2); // Только сильная связь у частной корреляции
         }
         #endregion
-        
-
+    
         #region Функции
         private void Selected(object sender, EventArgs e)
         {
@@ -314,7 +313,6 @@ namespace MatStat
                 LoadCorrelations(normedGrid);
                 cmbSelected = Cmbx.SelectedIndex;
             }
-            
         }
 
         private void SaveExcel(object sender, RoutedEventArgs e)  // ДОДЕЛАТЬ СОХРАНЯЛКУ
@@ -353,6 +351,5 @@ namespace MatStat
             return res;
         }
         #endregion
-
     }
 }

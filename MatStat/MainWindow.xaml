@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
-        Title="Математическая статистика" Height="770" Width="1520" Closing="AppExit" WindowStartupLocation="CenterScreen">
+        Title="Математическая статистика" Height="770" Width="1520" Closing="AppExit" WindowStartupLocation="CenterScreen" Icon="statistics.png">
     <Window.Resources>
         <local:CellConverter x:Key="convert"/>
         <Style x:Key="Strong">
@@ -433,7 +433,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Height="10" Width="10" Fill="Black" />
-                        <TextBlock Margin="3" FontSize="14">Корреляция</TextBlock>
+                        <TextBlock Margin="3" FontSize="14">Корреляционный анализ</TextBlock>
                     </StackPanel>
                 </TabItem.Header>
                 <TabItem.Content>
@@ -895,7 +895,7 @@
                                     <Canvas Margin="-225 20 0 0" x:Name="Canv1" Height="300" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel  Grid.Row="3" Grid.Column="0" Margin="-180 -80 0 0" HorizontalAlignment="Center">
-                                    <TextBlock FontSize="14" HorizontalAlignment="Center">Диаграмма частной корреляции(только сильные связи)</TextBlock>
+                                    <TextBlock FontSize="14" HorizontalAlignment="Center">Диаграмма парной корреляции(только сильные связи)</TextBlock>
                                     <Canvas Margin="-175 20 0 0" x:Name="Canv2" Height="300" HorizontalAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel  Grid.Row="3" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 -80 0 0">

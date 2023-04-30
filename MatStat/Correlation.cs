@@ -80,12 +80,11 @@ namespace MatStat
             ellipse.Height = size / 2;
             ellipse.StrokeThickness = 2;
             ellipse.Stroke = System.Windows.Media.Brushes.Black;
-            canv.Children.Add(ellipse);
+           // canv.Children.Add(ellipse);
             double radius = ellipse.Height / 2;
             int step = 100;
-            Canvas.SetTop(ellipse, center.Y - radius - step);
-            Canvas.SetLeft(ellipse, center.X - radius - step);
-
+          //  Canvas.SetTop(ellipse, center.Y - radius - step);
+          //  Canvas.SetLeft(ellipse, center.X - radius - step);
             int n = CorrCoef.GetUpperBound(0) + 1;
             List<System.Windows.Point> points = new List<System.Windows.Point>();
             for (int i = 0; i < n; i++)
@@ -93,13 +92,13 @@ namespace MatStat
                 double angle = i * Math.PI * 2 / n;
                 System.Windows.Point point = new System.Windows.Point(center.X - Math.Cos(angle) * radius, center.Y - Math.Sin(angle) * radius);
                 Ellipse pointView = new Ellipse();
-                pointView.Width = 2;
-                pointView.Height = 2;
+                pointView.Width = 10;
+                pointView.Height = 10;
                 pointView.Fill = System.Windows.Media.Brushes.Black;
                 canv.Children.Add(pointView);
                 double radiusPoint = pointView.Height / 2;
-                Canvas.SetTop(pointView, point.Y - radiusPoint - step);
-                Canvas.SetLeft(pointView, point.X - radiusPoint - step);
+                Canvas.SetTop(pointView, point.Y - radiusPoint - step - 5);
+                Canvas.SetLeft(pointView, point.X - radiusPoint - step - 5);
                 points.Add(new System.Windows.Point(point.X - radiusPoint - step, point.Y - radiusPoint - step));
 
                 TextBlock label = new TextBlock();
@@ -121,7 +120,7 @@ namespace MatStat
                     line.Y1 = points[i].Y;
                     line.X2 = points[j].X;
                     line.Y2 = points[j].Y;
-                    var val = CorrCoef[i, j - 1];
+                    var val = CorrCoef[i, j];
                     switch (mode)
                     {
                         case 1:
@@ -133,19 +132,11 @@ namespace MatStat
                             {
                                 line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 0));
                             }
-                            else if (val <= 0.4999 && val >= 0.2)
+                            else if (val <= 0.4999 && val >= 0.0001)
                             {
                                 line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 215, 0));
                             }
-                            else if (val <= 0.1999 && val >= 0.0001)
-                            {
-                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 165, 0));
-                            }
-                            else if (val <= 0.0001 && val >= -0.4999)
-                            {
-                                line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
-                            }
-                            else if (val <= -0.5 && val >= -1.0)
+                            else if (val <= 0)
                             {
                                 line.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
                             }
