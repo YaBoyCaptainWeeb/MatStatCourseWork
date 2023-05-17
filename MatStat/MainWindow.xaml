@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         xmlns:local="clr-namespace:MatStat"
         mc:Ignorable="d"
         Title="Математическая статистика" Height="770" Width="1520" Closing="AppExit" WindowStartupLocation="CenterScreen" Icon="statistics.png">
@@ -390,7 +391,7 @@
                     </StackPanel>
                 </TabItem.Content>
             </TabItem>
-            <TabItem x:Name="PierceTab" IsEnabled="False">
+            <TabItem x:Name="PearsonTab" IsEnabled="False">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Height="10" Width="10" Fill="Black" />
@@ -400,17 +401,9 @@
                 <TabItem.Content>
                     <StackPanel Background="Gray" Orientation="Vertical"  ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <TextBlock HorizontalAlignment="Center" FontSize="14" FontWeight="Black" Background="White">Уровень значимости α: 0.05</TextBlock>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
-                            <WrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="600" Orientation="Vertical">
-                                <WpfPlot x:Name="Ch1" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch2" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch3" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch4" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch5" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch6" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch7" Width="300" Height="300"/>
-                                <WpfPlot x:Name="Ch8" Width="300" Height="300"/>
-                            </WrapPanel>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center">
+                            <WrapPanel x:Name="PlotPanel" Height="600" Orientation="Horizontal" Width="1451"/>
+                            
                         </ScrollViewer>
                         <DataGrid x:Name="Normalties" HorizontalAlignment="Center"
                               VerticalAlignment="Stretch" AutoGenerateColumns="False" IsReadOnly="True">
@@ -444,13 +437,13 @@
                                 <TextBlock Text="Текущий уровень значимости α =" FontSize="14" IsEnabled="False"/>
                                 <ComboBox x:Name="Cmbx" Width="55" Background="White" SelectedIndex="3" DropDownClosed="Selected"
                                           Margin="-10 0 0 0">
-                                     <ComboBoxItem Content="0,4" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,25" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,1" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,05" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,025" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,01" HorizontalAlignment="Center"/>
-                                     <ComboBoxItem Content="0,005" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,4" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,25" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,1" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,05" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,025" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,01" HorizontalAlignment="Center"/>
+                                    <ComboBoxItem Content="0,005" HorizontalAlignment="Center"/>
                                 </ComboBox>
                                 <TextBlock Text="Текущая константа α =" FontSize="14" IsEnabled="False"/>
                                 <TextBlock x:Name="CurrentConstant" FontSize="14" Margin="-10 0 0 0" IsEnabled="False"/>
@@ -904,8 +897,17 @@
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
-                   </ScrollViewer>
+                    </ScrollViewer>
                 </TabItem.Content>
+            </TabItem>
+            <TabItem x:Name="RegressionTab" IsEnabled="False">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="10" Width="10" Fill="Black" />
+                        <TextBlock Margin="3" FontSize="14">Регрессионный анализ</TextBlock>
+                    </StackPanel>
+
+                </TabItem.Header>
             </TabItem>
         </TabControl>
     </Grid>

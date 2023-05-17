@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MatStat.MainWindow;
 
 namespace MatStat
 {
     static internal class DescripiveStatistics
     {
+        private static int _columns = 9;
         public static List<List<string>> LoadStatistics(List<List<string>> normedGrid)
         {
             List<List<string>> metricsGrid = new List<List<string>>();
@@ -83,6 +85,15 @@ namespace MatStat
             }
             metricsGrid.Add(array5);
             ////////////////////////////////////////////////////////////
+            List<string> array10 = new List<string>();
+            array10.Add("Ассиметрия");
+            double[] res = GetAsymmetry(Correlation.ToSteppedArr(mainWindow.ToArr(normedGrid)));
+            for (int i = 0; i != res.Length; i++)
+            {
+                array10.Add(Math.Round(res[i],4).ToString());
+            }
+            metricsGrid.Add(array10);
+            ////////////////////////////////////////////////////////////
             List<string> array6 = new List<string>(); // Среднее стат отклонение
             List<double> array61 = new List<double>();
             array6.Add("Среднее статистическое отклонение");
@@ -146,7 +157,7 @@ namespace MatStat
         {
             double stdDev = Math.Sqrt(list.Variance());
             double limErr = LimError(list, 2.13144954556); // из таблицы стьюдента взято 2.13144954556
-            double res = stdDev * stdDev * 0.95 * list.Count / (limErr * limErr); // по таблице вероятности пирсона 7.26
+            double res = stdDev * stdDev * 0.95 * list.Count / (limErr * limErr); 
             return res;
         }
 
@@ -177,6 +188,60 @@ namespace MatStat
         private static string Moda(List<string> arr) // вычисление моды
         {
             return arr.GroupBy(x => x).OrderByDescending(x => x.Count()).ThenBy(x => x.Key).Select(x => x.Key).First();
+        }
+
+        private static double[] GetAsymmetry(double[][] normolizeData)
+        {
+            var asymmetryArrayModel = new double[_columns - 1];
+            var moment3OrderArray = GetMomentOrder(normolizeData, 3);
+            var standartDeviationArray = GetStandartDeviation(normolizeData);
+
+            for (int i = 0; i < _columns - 1; i++)
+                asymmetryArrayModel[i] = moment3OrderArray[i] / Math.Pow(standartDeviationArray[i], 3);
+
+            return asymmetryArrayModel;
+        }
+        private static double[] GetMomentOrder(double[][] normolizeData, int order)
+        {
+            var momentArrayModel = new double[_columns - 1];
+            var averageArray = GetAverage(normolizeData);
+
+            for (int i = 0; i < _columns - 1; i++)
+                momentArrayModel[i] = normolizeData.Select(x => Math.Pow(x[i] - averageArray[i], order)).Sum() / (normolizeData.Count() - 1);
+
+            return momentArrayModel;
+        }
+        private static double[] GetStandartDeviation(double[][] normolizeData)
+        {
+            var dispersionArrayModel = new double[_columns - 1];
+            var dispersionArray = GetDispersion(normolizeData);
+
+            for (int i = 0; i < _columns - 1; i++)
+            {
+                //dispersionArrayModel[i] = Math.Sqrt(dispersionArray[i]);
+                var statistics = new DescriptiveStatistics(normolizeData.Select(x => x[i]));
+                dispersionArrayModel[i] = statistics.StandardDeviation;
+            }
+            return dispersionArrayModel;
+        }
+        private static double[] GetDispersion(double[][] normolizeData)
+        {
+            var dispersionArrayModel = new double[_columns - 1];
+            var averageArray = GetAverage(normolizeData);
+
+            for (int i = 0; i < _columns - 1; i++)
+                dispersionArrayModel[i] = normolizeData.Select(x => Math.Pow(x[i] - averageArray[i], 2)).Sum() / (normolizeData.Count() - 1);
+
+            return dispersionArrayModel;
+        }
+        private static double[] GetAverage(double[][] normolizeData)
+        {
+            var averageArrayModel = new double[_columns - 1];
+
+            for (int i = 0; i < _columns - 1; i++)
+                averageArrayModel[i] = normolizeData.Select(x => x[i]).Sum() / normolizeData.Count();
+
+            return averageArrayModel;
         }
     }
 }

@@ -22,11 +22,13 @@ using Microsoft.Win32;
 using ScottPlot;
 using ScottPlot.WPF;
 using ScottPlot.Statistics;
+using LiveCharts;
+using LiveCharts.Wpf;
 using System.Drawing;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using static MatStat.Pirson;
+using static MatStat.XiPearsonSquare;
 
 namespace MatStat
 {
@@ -159,13 +161,14 @@ namespace MatStat
         
         private void LoadCorrelations(List<List<string>> normedGrid)
         {
+            /* 
             List<MyTable> coupleCorrelationSource = new List<MyTable>(); // Массив для таблицы с парной корреляцией
             List<MyTable> coupleCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с критерием для парной корреляции
             List<MyTable> coupleSignificanceSource = new List<MyTable>(); // Массив для таблицы с коэфф.значимости для парной корреляции
             List<MyTable> partialCorrelationSource = new List<MyTable>(); // Массив для таблицы с частной корреляцией
             List<MyTable> partialCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с криетрием для частной корреляции
             List<MyTable> partialSignificanceSource = new List<MyTable>(); // Массив для таблицы с коэфф.значимости для частной корреляции
-
+            */
             double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid)); // Парная корреляция
             double[,] coupleCriteriaStudent = Correlation.CoupleCriteriaStudent(coupleCorrelatedArr); // Критерий Стьюдента для парной корреляции
             double[,] coupleSignificanceLevel = Correlation.SignificanceLevel(coupleCriteriaStudent, GetCurrentConstant(StudentDistributionList)); // Коэффициент значимости для парной корреляции
@@ -245,16 +248,18 @@ namespace MatStat
 
         private void ChooseFile(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Title = "Выберите файл...";
-            dlg.Filter = "Excel файл (*.xlsx) | *xlsx";
-                if (dlg.ShowDialog() == true)
+            OpenFileDialog dlg = new OpenFileDialog
+            {
+                Title = "Выберите файл...",
+                Filter = "Excel файл (*.xlsx) | *xlsx"
+            };
+            if (dlg.ShowDialog() == true)
                 {
                     SaveBtn.IsEnabled = true;
                     RecalcBtn.IsEnabled = true;
                     OpenBtn.IsEnabled = false;
                     StatisticsTab.IsEnabled = true;
-                    PierceTab.IsEnabled = true;
+                    PearsonTab.IsEnabled = true;
                     CorrelationTab.IsEnabled = true;
                     Load(dlg.FileName);
                 }
@@ -290,7 +295,7 @@ namespace MatStat
                     Convert.ToString(obj._Battery), Convert.ToString(obj._Weight)
                 });
                 }
-
+                /*
                 Ch1.Plot.Clear();
                 Ch2.Plot.Clear();
                 Ch3.Plot.Clear();
@@ -299,6 +304,8 @@ namespace MatStat
                 Ch6.Plot.Clear();
                 Ch7.Plot.Clear();
                 Ch8.Plot.Clear();
+                */
+                PlotPanel.Children.Clear();
                 Load1();
             } else
             {
@@ -317,9 +324,11 @@ namespace MatStat
 
         private void SaveExcel(object sender, RoutedEventArgs e)  // ДОДЕЛАТЬ СОХРАНЯЛКУ
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Title = "Сохранить файл как...";
-            dlg.Filter = "Excel файл (*.xlsx) | *xlsx";
+            SaveFileDialog dlg = new SaveFileDialog
+            {
+                Title = "Сохранить файл как...",
+                Filter = "Excel файл (*.xlsx) | *xlsx"
+            };
             if (dlg.ShowDialog() == true)
             {
                 
