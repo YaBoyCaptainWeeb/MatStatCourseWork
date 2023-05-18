@@ -906,8 +906,42 @@
                         <Ellipse Height="10" Width="10" Fill="Black" />
                         <TextBlock Margin="3" FontSize="14">Регрессионный анализ</TextBlock>
                     </StackPanel>
-
                 </TabItem.Header>
+                <TabItem.Content>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                        <StackPanel>
+                            <StackPanel Grid.Row="0">
+                                <TextBlock Text="Бетта" VerticalAlignment="Center" Margin="2" HorizontalAlignment="Center"/>
+                                <DataGrid  x:Name="d1" IsReadOnly="True" CanUserAddRows="False" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Название" Binding="{Binding _model}"/>
+                                        <DataGridTextColumn Header="Цена" Binding="{Binding _price}"/>
+                                        <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
+                                        <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
+                                        <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
+                                        <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
+                                        <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>
+                                        <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}"/>
+                                        <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1">
+                                <TextBlock Text="Y" VerticalAlignment="Center" Margin="2" HorizontalAlignment="Center"/>
+                                <DataGrid  x:Name="d2" IsReadOnly="True" ItemsSource="{Binding Path=YTable}" CanUserAddRows="False"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2">
+                                <TextBlock Text="Исходное уравнение регрессии" HorizontalAlignment="Center"  Margin="2"/>
+                                <TextBlock x:Name="d3"/>
+                            </StackPanel>
+                            <Frame>
+                                <Frame.Content>
+                                    <local:RegressionPage/>
+                                </Frame.Content>
+                            </Frame>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem.Content>
             </TabItem>
         </TabControl>
     </Grid>

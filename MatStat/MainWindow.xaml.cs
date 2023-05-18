@@ -29,6 +29,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static MatStat.XiPearsonSquare;
+using static MatStat.Correlation;
+using static MatStat.RegressionCalculates;
+using System.Data;
 
 namespace MatStat
 {
@@ -42,6 +45,9 @@ namespace MatStat
         public static List<List<string>> normedGrid;
         public int cmbSelected;
 
+        public DataTable BettaTable { get; set; }
+        public DataTable YTable { get; set; }
+        public string RegrText { get; set; }
         public MainWindow()
         {            
             InitializeComponent();
@@ -51,6 +57,10 @@ namespace MatStat
 
         private void Load(string filepath) // Источник данных
         {
+            /*
+            try
+            {
+            */
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 ExcelPackage excelPackage = new ExcelPackage(filepath);
                 ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0]; // Исходные данные
@@ -110,6 +120,15 @@ namespace MatStat
                     , MessageBoxButton.OK, MessageBoxImage.Hand);
                 Application.Current.Shutdown();
             }
+            /*
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Возможно, вы ввели неверные данные\n" + ex.Message.ToString() + "\n" + ex.StackTrace.ToString());
+
+            }
+            */
+                
         }
         #region Нормированные таблицы и корреляция
         private void Load1() // Все расчеты
@@ -157,8 +176,11 @@ namespace MatStat
             StatisticsForCharts(normedGrid);
             //////////////////////////////////----Корреляции----////////////////////////////////////////////////
             LoadCorrelations(normedGrid);
+            //////////////////////////////////----Регрессия(не готова до конца)----////////////////////////////////////////////////
+            RegressionCalculates regr = new RegressionCalculates();
+            regr.LoadRegression(ToSteppedArr(ToArr(normedGrid)));
         }
-        
+
         private void LoadCorrelations(List<List<string>> normedGrid)
         {
             /* 
@@ -261,6 +283,7 @@ namespace MatStat
                     StatisticsTab.IsEnabled = true;
                     PearsonTab.IsEnabled = true;
                     CorrelationTab.IsEnabled = true;
+                    RegressionTab.IsEnabled = true;
                     Load(dlg.FileName);
                 }
         }    

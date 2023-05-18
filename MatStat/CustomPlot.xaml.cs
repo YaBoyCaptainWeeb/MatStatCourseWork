@@ -26,12 +26,12 @@ namespace MatStat
         public CustomPlot(double[] frequency, double[] theoreticFrequency, double[] intervals, double isNormal, string title)
         {
             InitializeComponent();
-            ChartValues<ObservablePoint> points = new ChartValues<ObservablePoint>();
+            //ChartValues<ObservablePoint> points = new ChartValues<ObservablePoint>();
             ChartValues<ObservablePoint> theoreticPoints = new ChartValues<ObservablePoint>();
-            SeriesCollection seriesCollection = new SeriesCollection { new LineSeries { Values = points }, new LineSeries { Values = theoreticPoints } };
+            SeriesCollection seriesCollection = new SeriesCollection { new LineSeries { Values = theoreticPoints } }; //new LineSeries { Values = theoreticPoints } };
             for (int i = 0; i < frequency.Length; i++)
             {
-                points.Add(new ObservablePoint(intervals[i], frequency[i]));
+                //points.Add(new ObservablePoint(intervals[i], frequency[i]));
                 theoreticPoints.Add(new ObservablePoint(intervals[i], theoreticFrequency[i]));
             }
             Chart.Series = seriesCollection;
