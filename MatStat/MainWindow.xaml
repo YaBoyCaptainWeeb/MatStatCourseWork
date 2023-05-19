@@ -934,11 +934,22 @@
                                 <TextBlock Text="Исходное уравнение регрессии" HorizontalAlignment="Center"  Margin="2"/>
                                 <TextBlock x:Name="d3"/>
                             </StackPanel>
-                            <Frame>
-                                <Frame.Content>
-                                    <local:RegressionPage/>
-                                </Frame.Content>
-                            </Frame>
+                            <Grid VerticalAlignment="Top" HorizontalAlignment="Left">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="10">
+                                    <TextBlock Text="Прогнозирование" HorizontalAlignment="Center"/>
+                                    <DataGrid x:Name="d4"
+                                            IsReadOnly="True"
+                                             CanUserAddRows="False" AutoGenerateColumns="True" />
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Margin="10">
+                                    <TextBlock Text="Результат прогноза" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="d5"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem.Content>

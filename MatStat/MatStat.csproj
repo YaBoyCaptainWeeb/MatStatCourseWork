@@ -121,9 +121,6 @@
     <Compile Include="DescripiveStatistics.cs" />
     <Compile Include="GraphicData.cs" />
     <Compile Include="RegressionCalculates.cs" />
-    <Compile Include="RegressionPage.xaml.cs">
-      <DependentUpon>RegressionPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="StudentDistribution.xaml.cs">
       <DependentUpon>StudentDistribution.xaml</DependentUpon>
     </Compile>
@@ -147,10 +144,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RegressionPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="StudentDistribution.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -57,10 +57,8 @@ namespace MatStat
 
         private void Load(string filepath) // Источник данных
         {
-            /*
             try
             {
-            */
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 ExcelPackage excelPackage = new ExcelPackage(filepath);
                 ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets[0]; // Исходные данные
@@ -120,15 +118,12 @@ namespace MatStat
                     , MessageBoxButton.OK, MessageBoxImage.Hand);
                 Application.Current.Shutdown();
             }
-            /*
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Возможно, вы ввели неверные данные\n" + ex.Message.ToString() + "\n" + ex.StackTrace.ToString());
 
-            }
-            */
-                
+            }                
         }
         #region Нормированные таблицы и корреляция
         private void Load1() // Все расчеты
