@@ -329,7 +329,7 @@
                     <StackPanel>
                         <Menu>
                             <MenuItem x:Name="OpenBtn" Header="Открыть файл..." FontSize="14" Click="ChooseFile"/>
-                            <MenuItem x:Name="SaveBtn" Header="Сохранить изменения" FontSize="14" Width="150" Height="25" Click="SaveExcel" IsEnabled="False"/>
+                           <!-- <MenuItem x:Name="SaveBtn" Header="Сохранить изменения" FontSize="14" Width="150" Height="25" Click="SaveExcel" IsEnabled="False"/> -->
                             <MenuItem x:Name="RecalcBtn" Header ="Перерасчитать изменения"  FontSize="14" Width="180" Height="25" Click="ReCalculate" IsEnabled="False"/>
                         </Menu>
                         <DataGrid x:Name="dataGrid" CanUserAddRows="True" CanUserDeleteRows="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch"
@@ -943,7 +943,17 @@
                                     <TextBlock Text="Прогнозирование" HorizontalAlignment="Center"/>
                                     <DataGrid x:Name="d4"
                                             IsReadOnly="True"
-                                             CanUserAddRows="False" AutoGenerateColumns="True" />
+                                             CanUserAddRows="False" AutoGenerateColumns="False" >
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Частота процессора" Binding="{Binding _CPUClock}"/>
+                                            <DataGridTextColumn Header="Оперативная память" Binding="{Binding _RAM}"/>
+                                            <DataGridTextColumn Header="Жесткий диск/накопитель" Binding="{Binding _DriveDisk}"/>
+                                            <DataGridTextColumn Header="Частота графического процессора" Binding="{Binding _GPUClock}"/>
+                                            <DataGridTextColumn Header="Диагональ экрана" Binding="{Binding _Diagonal}"/>
+                                            <DataGridTextColumn Header="Аккумулятор" Binding="{Binding _Battery}"/>
+                                            <DataGridTextColumn Header="Вес" Binding="{Binding _Weight}"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </StackPanel>
                                 <StackPanel Grid.Row="1" Margin="10">
                                     <TextBlock Text="Результат прогноза" HorizontalAlignment="Center"/>

@@ -1,26 +1,20 @@
 ﻿using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
-using ScottPlot.Renderable;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using static MatStat.MainWindow;
 
 namespace MatStat
 {
     internal class RegressionCalculates
     {
-        private double crit = 0;
+        private double crit = mainWindow.crit;
         private int _rows = 0;
         private int _columns = 0;
+        double aproximaticError = 0;
 
         public DataTable BettaTable { get; set; }
         public DataTable YTable { get; set; }
@@ -45,6 +39,7 @@ namespace MatStat
         {
             _rows = Matrix.Length;
             _columns = Matrix[0].Length + 1;
+
             for (int i = 1; i != 9; i++)
             {
                 Headers[i - 1] = mainWindow.NormGrid.Columns[i].Header.ToString();
@@ -72,11 +67,11 @@ namespace MatStat
 
             BettaTable = GetRegressionTable(significanceCoeffecients, Matrix);
             YTable = GetValueTable(calculatedValues, significanceCoeffecients, Matrix, Headers);
-            table = DataTableToMyTable(BettaTable);
-            mainWindow.d1.ItemsSource = table;
-            mainWindow.d2.DataContext = this;
-            mainWindow.d3.Text = RegrText;
-            LoadRegressionPage(Matrix, significanceFactors, significanceCoeffecientsB, calculatedValues, coeffecientsB, factorsIndexes);
+            table = DataTableToMyTable(BettaTable); // мой кастомный метод перевода в табличный вид для моей программы, т.к был баг, не знаю, понадобится ли тебе эта функция. DataTable через DefaultView можно вкинуть в datagrid
+            mainWindow.d1.ItemsSource = table; // вот тут в data grid конечный результат сохраняется, в table
+            mainWindow.d2.DataContext = this; // тут через binding идет привязка из переменной Ytable 
+            mainWindow.d3.Text = RegrText; // это тоже важная штука, как ты понял
+            LoadRegressionPage(Matrix, significanceFactors, significanceCoeffecientsB, calculatedValues, coeffecientsB, factorsIndexes); // тут вызывается прогнозирование
         }
 
         public void LoadRegressionPage(double[][] arr, double[][] significanceFactors1, double[] significanceCoeffecientsB1,
@@ -128,17 +123,56 @@ namespace MatStat
             if (significanceCoeffecientsB[0] == 1)
                 x0list.Insert(0, 1);
 
+
             var denormolizeY = (result * (dataConfig.MaxData[0] - dataConfig.MinData[0])) + dataConfig.MinData[0];
+
+            double normedRes = coeffecientsB1[0];
+            double[] lookingForValues = GetData(calculatedValues);
+            List<string> s = new List<string>()
+            {
+                "ToPrognoseModel", "699", lookingForValues[0].ToString(),lookingForValues[1].ToString(),
+                lookingForValues[2].ToString(),lookingForValues[3].ToString(),lookingForValues[4].ToString(),
+                lookingForValues[5].ToString(), lookingForValues[6].ToString()
+            };
+            grid.Add(s);
+            double[,] normedGrid1 = new double[grid.Count,grid[0].Count-1];
+            for (int cols = 1; cols != 9; cols++) // нормирование
+            {
+                List<double> col = new List<double>();
+                for (int rows = 0; rows != grid.Count; rows++)
+                {
+                    col.Add(Convert.ToDouble(grid[rows][cols]));
+                }
+                double colMax = col.Max();
+                double colMin = col.Min();
+                double Xnorm = 0;
+                for (int rows1 = 0; rows1 != grid.Count; rows1++)
+                {
+                    Xnorm = (col[rows1] - colMin) / (colMax - colMin);
+                    normedGrid1[rows1,cols-1] = Math.Round(Xnorm, 4);
+                }
+            }
+            for (int i = 1; i < _coefficientsB.Count(); i++)
+            {
+                normedRes += significanceCoeffecientsB[i] > 0 ? coeffecientsB1[i] * Convert.ToDouble(normedGrid1[normedGrid1.GetUpperBound(0),i]) : 0;
+            }
+            double[] prices = new double[grid.Count];
+            for (int i = 0; i != grid.Count; i++)
+            {
+                prices[i] = Convert.ToDouble(grid[i][1]);
+            }
+            double nonNormedRes = Convert.ToDouble(grid[Array.IndexOf(prices,prices.Max())][1]) * normedRes;
+            // 0,0309
             string resultStr = $"Результат прогноза:\n" +
-                               $"y = 0,34 ± 0,08\n" +
+                               $"y = {Math.Round(normedRes,6)} ± {Math.Round(normedRes*(aproximaticError/100),4)}\n" +
                                $"Без нормализцации:\n" +
-                               $"y = 623,4 ± 12\n ";
+                               $"y = {Math.Round(nonNormedRes,2)} ± {Math.Round(nonNormedRes*(aproximaticError/100),4)}\n ";
             FutureText = resultStr;
             _textBoxesPrognoz[count - 1] = denormolizeY;
-
-            MainTable = GetData(_textBoxesPrognoz).ToDataTable();
-            mainWindow.d4.ItemsSource = MainTable.DefaultView;
-            mainWindow.d5.Text = FutureText;
+            List<MyTable1> data = new List<MyTable1>();
+            data = DataTableToMyTable1(GetData(_textBoxesPrognoz).ToDataTable());
+            mainWindow.d4.ItemsSource = data; // тут все то же самое, что и в предыдущей функции
+            mainWindow.d5.Text = FutureText; // и тут тоже
         }
         private double GetStandartErrorY(double[][] x, double[][] normolizedData, double[] calculatedValues, double[] x0)
         {
@@ -165,15 +199,15 @@ namespace MatStat
         }
         private double[] GetData(double[] input)
         {
-            input[0] = 23;
-            input[1] = 18;
-            input[2] = 1.23;
-            input[3] = 23.103;
-            input[4] = 54.1;
-            input[5] = 38.987;
-            input[6] = 22.7;
-            input[7] = 20.871;
-            return input;
+            double[] res = new double[7];
+            res[0] = 3200;
+            res[1] = 16;
+            res[2] = 512;
+            res[3] = 2400;
+            res[4] = 14;
+            res[5] = 56;
+            res[6] = 1.45;
+            return res;
         }
 
     private List<MyTable> DataTableToMyTable(DataTable arr)
@@ -188,7 +222,19 @@ namespace MatStat
         }
         return res;
     }
-    private DataTable GetRegressionTable(double[][] significanceCoeffecients, double[][] normolizedData)
+        private List<MyTable1> DataTableToMyTable1(DataTable arr)
+        {
+            List<MyTable1> res = new List<MyTable1>();
+            foreach (DataRow row in arr.Rows)
+            {
+                res.Add(new MyTable1(Convert.ToDouble(row.ItemArray[0]), Convert.ToDouble(row.ItemArray[1]),
+                    Convert.ToDouble(row.ItemArray[2]), Convert.ToDouble(row.ItemArray[3]),
+                    Convert.ToDouble(row.ItemArray[4]), Convert.ToDouble(row.ItemArray[5]),
+                    Convert.ToDouble(row.ItemArray[6])));
+            }
+            return res;
+        }
+        private DataTable GetRegressionTable(double[][] significanceCoeffecients, double[][] normolizedData)
     {
         var significanceFactors = GetSignificanceFactors(significanceCoeffecients, normolizedData);
         var significanceFactorsIndexes = GetSignificanceFactorsIndexes(significanceCoeffecients);
@@ -292,7 +338,7 @@ namespace MatStat
         for (int i = 0; i < size; i++)
         {
             var temp = new double[size];
-            for (int j = 0; j < size; j++)
+            for (int j = 1; j < size; j++)
             {
                 temp[j] = criterionsStudient[i][j] > crit ? 1 : 0;
                 significanceCoeffecients[i] = temp;
@@ -475,7 +521,7 @@ namespace MatStat
         var critical = FisherSnedecor.InvCDF(factorsCount, n - factorsCount - 1, 1 - 0.05 / 2);
         var criterionFisher = (coeffecientsDetermination * (n - factorsCount - 1)) / ((1 - coeffecientsDetermination) * factorsCount);
         var significance = criterionFisher > critical;
-        var aproximaticError = GetAproximaticError(calculatedValues, observableValues);
+        aproximaticError = GetAproximaticError(calculatedValues, observableValues);
 
         string result = $"F критерий Фишера = {criterionFisher}\n" +
                         $"F критическое = {critical}\n";
@@ -565,8 +611,7 @@ namespace MatStat
         result += "y = ";
         result += significanceCoeffecientsB[0] > 0 ? $"{Math.Round(coeffecientsB[0], 3)} + " : string.Empty;
         for (int i = 1; i < coeffecientsB.Count(); i++)
-            //if (significanceCoeffecientsB[i] > 0)
-            result += $"{Math.Round(coeffecientsB[i], 3)}*x{factorsIndexes[i - 1]} + ";
+            result += significanceCoeffecientsB[i] > 0 ? $"{Math.Round(coeffecientsB[i], 3)}*x{factorsIndexes[i - 1]} + " : string.Empty;
         return "Уравнение регрессии с учетом значимых коэффициентов:\n" + result.Remove(result.Length - 2, 2);
     }
     private string ShowRegressionEquation(double[] coeffecientsB, int[] factorsIndexes)
@@ -616,11 +661,13 @@ namespace MatStat
             var res = new DataTable();
             T[][] matrix = new T[1][];
             matrix[0] = input;
-            for (int i = 0; i < matrix[0].Length; i++)
-            {
-                res.Columns.Add("x" + i, typeof(T));
-            }
-
+            res.Columns.Add("Частота процессора", typeof(T));
+            res.Columns.Add("Оперативная память", typeof(T));
+            res.Columns.Add("Жесткий диск/накопитель", typeof(T));
+            res.Columns.Add("Частота графического процессора", typeof(T));
+            res.Columns.Add("Диагональ экрана", typeof(T));
+            res.Columns.Add("Аккумулятор", typeof(T));
+            res.Columns.Add("Вес", typeof(T));
             for (int i = 0; i < matrix.Length; i++)
             {
                 var row = res.NewRow();
@@ -634,6 +681,33 @@ namespace MatStat
             }
 
             return res;
+        }
+    }
+    internal class MyTable1
+    {
+       // public string _model { get; set; }
+       // public double _price { get; set; }
+        public double _CPUClock { get; set; }
+        public double _RAM { get; set; }
+        public double _DriveDisk { get; set; }
+        public double _GPUClock { get; set; }
+        public double _Diagonal { get; set; }
+        public double _Battery { get; set; }
+        public double _Weight { get; set; }
+
+        public MyTable1(double CPUClock, double RABClock, double DriveDisk, double GPUClock, double Diagonal, double Battery, double Weight)
+        {
+            _CPUClock = CPUClock;
+            _RAM = RABClock;
+            _DriveDisk = DriveDisk;
+            _GPUClock = GPUClock;
+            _Diagonal = Diagonal;
+            _Battery = Battery;
+            _Weight = Weight;
+        }
+        public MyTable1()
+        {
+
         }
     }
 }

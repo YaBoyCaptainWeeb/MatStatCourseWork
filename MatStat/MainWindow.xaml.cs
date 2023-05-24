@@ -44,6 +44,7 @@ namespace MatStat
         public static List<List<double>> StudentDistributionList = new List<List<double>>(); // Распределение Стьюдента
         public static List<List<string>> normedGrid;
         public int cmbSelected;
+        public double crit = 0;
 
         public DataTable BettaTable { get; set; }
         public DataTable YTable { get; set; }
@@ -77,11 +78,10 @@ namespace MatStat
                     }
                     grid.Add(row);
                 }
-
             if (grid.Count > 8)
             {
                 string[,] buff = new string[30,7];
-                for (int i = 4; true; i++) // копируем таблицу из Excel для распределения Стьюдента В ПРОЦЕССЕ
+                for (int i = 4; true; i++) // копируем таблицу из Excel для распределения Стьюдента 
                 {
                     if (excelWorksheet1.Cells[i, 3].Value == null) break;
                     List<string> row = new List<string>();
@@ -111,6 +111,7 @@ namespace MatStat
                         Convert.ToDouble(row[4]), Convert.ToDouble(row[5]), Convert.ToDouble(row[6]), Convert.ToDouble(row[7]), Convert.ToDouble(row[8])));
                 }
                 dataGrid.ItemsSource = itemsSource;
+                crit = GetCurrentConstant(StudentDistributionList);
                 Load1();
             } else
             {
@@ -178,14 +179,6 @@ namespace MatStat
 
         private void LoadCorrelations(List<List<string>> normedGrid)
         {
-            /* 
-            List<MyTable> coupleCorrelationSource = new List<MyTable>(); // Массив для таблицы с парной корреляцией
-            List<MyTable> coupleCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с критерием для парной корреляции
-            List<MyTable> coupleSignificanceSource = new List<MyTable>(); // Массив для таблицы с коэфф.значимости для парной корреляции
-            List<MyTable> partialCorrelationSource = new List<MyTable>(); // Массив для таблицы с частной корреляцией
-            List<MyTable> partialCriteriaStudentSource = new List<MyTable>(); // Массив для таблицы с криетрием для частной корреляции
-            List<MyTable> partialSignificanceSource = new List<MyTable>(); // Массив для таблицы с коэфф.значимости для частной корреляции
-            */
             double[,] coupleCorrelatedArr = Correlation.CoupleCorrelate(ToArr(normedGrid)); // Парная корреляция
             double[,] coupleCriteriaStudent = Correlation.CoupleCriteriaStudent(coupleCorrelatedArr); // Критерий Стьюдента для парной корреляции
             double[,] coupleSignificanceLevel = Correlation.SignificanceLevel(coupleCriteriaStudent, GetCurrentConstant(StudentDistributionList)); // Коэффициент значимости для парной корреляции
@@ -222,7 +215,7 @@ namespace MatStat
             CurrentConstant.Text = GetCurrentConstant(StudentDistributionList).ToString();
             CorrelationRecalculate(normedGrid);
         }
-        private double GetCurrentConstant(List<List<double>> arr)
+        public double GetCurrentConstant(List<List<double>> arr)
         {
             return arr[grid.Count-1][Cmbx.SelectedIndex];
         }
@@ -272,7 +265,7 @@ namespace MatStat
             };
             if (dlg.ShowDialog() == true)
                 {
-                    SaveBtn.IsEnabled = true;
+                    //SaveBtn.IsEnabled = true;
                     RecalcBtn.IsEnabled = true;
                     OpenBtn.IsEnabled = false;
                     StatisticsTab.IsEnabled = true;
